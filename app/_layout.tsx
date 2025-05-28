@@ -1,6 +1,11 @@
-import { Stack } from "expo-router";
+import FirebaseProvider from '@/components/FirebaseProvider';
+import { Slot } from "expo-router";
 
 export default function RootLayout()
 {
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <FirebaseProvider>
+      <Slot />
+    </FirebaseProvider>
+  );
 }

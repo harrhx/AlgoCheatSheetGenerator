@@ -1,4 +1,6 @@
+import useFirebase from '@/hooks/useFirebase';
 import { router } from 'expo-router';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import
   {
@@ -11,15 +13,29 @@ import
   } from 'react-native';
 import { Button, Checkbox, TextInput } from 'react-native-paper';
 
-export default function SignUpScreen()
+export default function LoginScreen()
 {
+ const { auth } = useFirebase();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [Confirmpassword, setConfirmpassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 500;
+
+    async function login()
+    {
+      try
+      {
+        const response = await signInWithEmailAndPassword(auth, email, password);
+        console.log('signed in', response);
+      }
+      catch (error)
+      {
+        console.log(error);
+      }
+    }
 
   return (
     <ScrollView
@@ -47,10 +63,10 @@ export default function SignUpScreen()
         { width: isSmallScreen ? '95%' : 400 }
       ]}>
         <View style={styles.tab}>
-          <TouchableOpacity onPress={() => {router.replace('/login')}}>
-            <Text style={styles.inactiveTab}>Login</Text>
-          </TouchableOpacity>
-          <Text style={styles.activeTab}>Sign Up</Text>
+          <Text style={styles.activeTab}>Login</Text>
+            <TouchableOpacity onPress={() => {router.replace('/signup')}}>
+            <Text style={styles.inactiveTab}>Sign Up</Text>
+            </TouchableOpacity>
         </View>
 
         <TextInput
@@ -70,15 +86,6 @@ export default function SignUpScreen()
           style={styles.input}
         />
 
-        <TextInput
-          label="Confirm Password"
-          value={Confirmpassword}
-          mode="outlined"
-          secureTextEntry
-          onChangeText={setConfirmpassword}
-          style={styles.input}
-        />
-
         <View style={styles.checkboxContainer}>
           <View style={styles.checkboxRow}>
             <Checkbox
@@ -92,8 +99,8 @@ export default function SignUpScreen()
           </TouchableOpacity>
         </View>
 
-        <Button mode="contained" onPress={() => { }} style={styles.loginButton}>
-          Sign Up
+        <Button mode="contained" onPress={login} style={styles.loginButton}>
+          Login
         </Button>
 
         <Text style={styles.orText}>Or continue with</Text>
@@ -162,14 +169,13 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     fontWeight: 'bold',
+    marginRight: 20,
     fontSize: 16,
     color: '#2563eb',
-    paddingHorizontal: 8,
   },
   inactiveTab: {
     fontSize: 16,
     color: '#aaa',
-    paddingHorizontal: 8,
   },
   input: {
     marginBottom: 12,
