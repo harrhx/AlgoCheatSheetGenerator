@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import
   {
@@ -10,10 +11,11 @@ import
   } from 'react-native';
 import { Button, Checkbox, TextInput } from 'react-native-paper';
 
-export default function LoginScreen()
+export default function SignUpScreen()
 {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [Confirmpassword, setConfirmpassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
   const { width } = useWindowDimensions();
@@ -45,7 +47,9 @@ export default function LoginScreen()
         { width: isSmallScreen ? '95%' : 400 }
       ]}>
         <View style={styles.tab}>
-          <Text style={styles.inactiveTab}>Login</Text>
+          <TouchableOpacity onPress={() => {router.replace('/login')}}>
+            <Text style={styles.inactiveTab}>Login</Text>
+          </TouchableOpacity>
           <Text style={styles.activeTab}>Sign Up</Text>
         </View>
 
@@ -63,6 +67,15 @@ export default function LoginScreen()
           mode="outlined"
           secureTextEntry
           onChangeText={setPassword}
+          style={styles.input}
+        />
+
+        <TextInput
+          label="Confirm Password"
+          value={Confirmpassword}
+          mode="outlined"
+          secureTextEntry
+          onChangeText={setConfirmpassword}
           style={styles.input}
         />
 
@@ -149,13 +162,14 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     fontWeight: 'bold',
-    marginRight: 20,
     fontSize: 16,
     color: '#2563eb',
+    paddingHorizontal: 8,
   },
   inactiveTab: {
     fontSize: 16,
     color: '#aaa',
+    paddingHorizontal: 8,
   },
   input: {
     marginBottom: 12,

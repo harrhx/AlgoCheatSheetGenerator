@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import
   {
@@ -46,7 +47,9 @@ export default function LoginScreen()
       ]}>
         <View style={styles.tab}>
           <Text style={styles.activeTab}>Login</Text>
-          <Text style={styles.inactiveTab}>Sign Up</Text>
+            <TouchableOpacity onPress={() => {router.replace('/signup')}}>
+            <Text style={styles.inactiveTab}>Sign Up</Text>
+            </TouchableOpacity>
         </View>
 
         <TextInput
