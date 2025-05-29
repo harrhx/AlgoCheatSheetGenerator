@@ -1,5 +1,5 @@
 import useFirebase from '@/hooks/useFirebase';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import
@@ -15,6 +15,7 @@ import { Button, Checkbox, TextInput } from 'react-native-paper';
 
 export default function LoginScreen()
 {
+  const params = useLocalSearchParams();
   const { auth } = useFirebase();
 
   const [email, setEmail] = useState('');
@@ -42,7 +43,10 @@ export default function LoginScreen()
     if (auth.currentUser)
     {
       console.log('User already logged in, redirecting...');
-      router.replace('/');
+      if (params.topic)
+        router.replace({ pathname: '/loadingScreen', params: { topic: params.topic } });
+      else
+        router.replace('/');
     }
   }
     , [auth.currentUser]);
@@ -74,7 +78,7 @@ export default function LoginScreen()
       ]}>
         <View style={styles.tab}>
           <Text style={styles.activeTab}>Login</Text>
-          <TouchableOpacity onPress={() => { router.replace('/signup') }}>
+          <TouchableOpacity onPress={() => { router.replace({ pathname: '/signup', params }) }}>
             <Text style={styles.inactiveTab}>Sign Up</Text>
           </TouchableOpacity>
         </View>

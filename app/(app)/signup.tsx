@@ -1,6 +1,6 @@
 import useFirebase from '@/hooks/useFirebase';
-import { router } from 'expo-router';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { router, useLocalSearchParams } from 'expo-router';
+import { createUserWithEmailAndPassword, getRedirectResult, GoogleAuthProvider, signInWithEmailAndPassword, signInWithRedirect } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import
@@ -16,6 +16,7 @@ import { Button, Checkbox, TextInput } from 'react-native-paper';
 
 export default function SignUpScreen()
 {
+  const params = useLocalSearchParams();
   const { auth, db } = useFirebase();
 
   const [email, setEmail] = useState('');
@@ -43,15 +44,69 @@ export default function SignUpScreen()
     }
   }
 
+  // Call this function when your app loads, to handle the redirect result
+  async function handleGoogleRedirectResult()
+  {
+    try
+    {
+      console.log('Auth',auth);
+      const result = await getRedirectResult(auth);
+      console.log("Google redirect result:", result);
+      if (result)
+      {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential?.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        console.log("Google Redirect Sign-in successful!", user);
+        // Redirect or update UI as needed
+      }
+    } catch (error: any)
+    {
+      console.error("Error handling Google redirect result:", error);
+      // Handle Errors here.
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      const email = error.customData ? error.customData.email : null;
+      const credential = GoogleAuthProvider.credentialFromError(error);
+      console.error("Google Redirect Sign-in error:", errorCode, errorMessage, email, credential);
+    }
+  }
+
+  // Call this function when the user clicks a sign-in button
+  async function signInWithGoogleRedirect()
+  {
+    const provider = new GoogleAuthProvider();
+    try
+    {
+      await signInWithRedirect(auth, provider);
+      // No code here, the page will redirect to Google.
+    } catch (error)
+    {
+      console.error("Error initiating Google redirect sign-in:", error);
+    }
+  }
+
   useEffect(() =>
   {
     if (auth.currentUser)
     {
       console.log('User already logged in, redirecting...');
-      router.replace('/');
+      if (params.topic)
+        router.replace({ pathname: '/loadingScreen', params: { topic: params.topic } });
+      else
+        router.replace('/');
     }
   }
     , [auth.currentUser]);
+
+  useEffect(() =>
+  {
+    // Handle the Google redirect result when the component mounts
+    handleGoogleRedirectResult();
+  }
+    , []);
 
   return (
     <ScrollView
@@ -79,7 +134,7 @@ export default function SignUpScreen()
         { width: isSmallScreen ? '95%' : 400 }
       ]}>
         <View style={styles.tab}>
-          <TouchableOpacity onPress={() => { router.replace('/login') }}>
+          <TouchableOpacity onPress={() => { router.replace({ pathname: '/login', params }) }}>
             <Text style={styles.inactiveTab}>Login</Text>
           </TouchableOpacity>
           <Text style={styles.activeTab}>Sign Up</Text>
@@ -132,7 +187,7 @@ export default function SignUpScreen()
         <Text style={styles.orText}>Or continue with</Text>
 
         <View style={styles.socialButtons}>
-          <Button icon="google" mode="outlined" style={styles.socialBtn}>
+          <Button icon="google" mode="outlined" style={styles.socialBtn} onPress={signInWithGoogleRedirect}>
             Google
           </Button>
           <Button icon="github" mode="outlined" style={styles.socialBtn}>

@@ -19,19 +19,30 @@ import
     View
   } from 'react-native';
 
-export default function HomePage() {
+export default function HomePage()
+{
   const { auth } = useFirebase();
   const { user } = useUserData().userData;
   const [topicInput, setTopicInput] = useState('');
 
   // Handler for Generate button
-  const handleGenerate = () => {
-    if (!topicInput.trim()) {
+  const handleGenerate = () =>
+  {
+    if (!topicInput.trim())
+    {
       Alert.alert('Topic Required', 'Please enter an algorithm topic.');
       return;
     }
     // Navigate to loading screen, passing topic
-    console.log("hello");
+
+    if (!auth.currentUser)
+    {
+      return router.navigate({
+        pathname: '/login',
+        params: { topic: topicInput.trim() }
+      });
+    }
+
     router.navigate({
       pathname: '/loadingScreen',
       params: { topic: topicInput.trim() }
@@ -40,7 +51,8 @@ export default function HomePage() {
   };
 
   // Handler for clicking a popular search
-  const handlePopularSearch = (topic: string) => {
+  const handlePopularSearch = (topic: string) =>
+  {
     setTopicInput(topic);
     // Optionally, auto-trigger generation:
     // router.navigate({ pathname: '/loading', params: { topic } });

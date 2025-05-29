@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
 
 export default function LoadingScreen() {
   const params = useLocalSearchParams();
@@ -39,7 +39,7 @@ export default function LoadingScreen() {
 
       // Make API call to your backend - only send topic
       const response = await fetch(
-        "http://localhost:3001/api/generate-cheatsheet",
+        "https://aicheatsheetgeneratorbackend.onrender.com/api/generate-cheatsheet",
         {
           method: "POST",
           headers: {
