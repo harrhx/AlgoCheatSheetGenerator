@@ -7,7 +7,6 @@ import {
   Image,
   TouchableOpacity,
   useWindowDimensions,
-  FlatList,
 } from 'react-native';
 import { Ionicons, Feather } from '@expo/vector-icons';
 
@@ -46,7 +45,7 @@ const generatedSheets = [
 
 export default function DashboardScreen() {
   const { width } = useWindowDimensions();
-  const isLargeScreen = width > 800;
+  const isLargeScreen = width >= 900;
 
   return (
     <View style={styles.root}>
@@ -63,9 +62,28 @@ export default function DashboardScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={[styles.dashboard, { flexDirection: isLargeScreen ? 'row' : 'column' }]}>
+        {/* Top Cards Row */}
+        <View
+          style={[
+            styles.dashboard,
+            {
+              flexDirection: isLargeScreen ? 'row' : 'column',
+              alignItems: isLargeScreen ? 'stretch' : 'flex-start',
+              gap: isLargeScreen ? 24 : 0,
+            },
+          ]}
+        >
           {/* Profile Card */}
-          <View style={[styles.profileCard, { marginRight: isLargeScreen ? 16 : 0 }]}>
+          <View
+            style={[
+              styles.profileCard,
+              {
+                flex: isLargeScreen ? 1 : undefined,
+                marginRight: isLargeScreen ? 0 : 0,
+                marginBottom: isLargeScreen ? 0 : 18,
+              },
+            ]}
+          >
             <Image source={{ uri: user.avatar }} style={styles.profileAvatar} />
             <Text style={styles.profileName}>{user.name}</Text>
             <Text style={styles.profileRole}>{user.role}</Text>
@@ -82,10 +100,26 @@ export default function DashboardScreen() {
           </View>
 
           {/* Recent Searches */}
-          <View style={styles.recentSearchesCard}>
+          <View
+            style={[
+              styles.recentSearchesCard,
+              {
+                flex: isLargeScreen ? 2 : undefined,
+                minWidth: isLargeScreen ? 0 : 260,
+              },
+            ]}
+          >
             <Text style={styles.cardTitle}>Recent Searches</Text>
             {recentSearches.map((item, idx) => (
-              <View key={idx} style={styles.searchRow}>
+              <View
+                key={idx}
+                style={[
+                  styles.searchRow,
+                  {
+                    borderBottomWidth: idx !== recentSearches.length - 1 ? 1 : 0,
+                  },
+                ]}
+              >
                 <Ionicons name="search-outline" size={18} color="#2563eb" style={{ marginRight: 8 }} />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.searchTitle}>{item.title}</Text>
@@ -100,9 +134,27 @@ export default function DashboardScreen() {
         {/* Generated Cheat Sheets */}
         <View style={styles.generatedSheetsSection}>
           <Text style={styles.sectionTitle}>Generated Cheat Sheets</Text>
-          <View style={[styles.generatedSheetsRow, { flexDirection: isLargeScreen ? 'row' : 'column' }]}>
+          <View
+            style={[
+              styles.generatedSheetsRow,
+              {
+                flexDirection: isLargeScreen ? 'row' : 'column',
+                gap: isLargeScreen ? 24 : 0,
+              },
+            ]}
+          >
             {generatedSheets.map((sheet, idx) => (
-              <View key={idx} style={styles.sheetCard}>
+              <View
+                key={idx}
+                style={[
+                  styles.sheetCard,
+                  {
+                    flex: isLargeScreen ? 1 : undefined,
+                    marginRight: isLargeScreen && idx !== generatedSheets.length - 1 ? 0 : 0,
+                    marginBottom: isLargeScreen ? 0 : 16,
+                  },
+                ]}
+              >
                 <Text style={styles.sheetTitle}>{sheet.title}</Text>
                 <Text style={styles.sheetDesc}>{sheet.desc}</Text>
                 <View style={styles.sheetFooter}>
@@ -141,18 +193,20 @@ const styles = StyleSheet.create({
   headerRight: { flexDirection: 'row', alignItems: 'center' },
   avatar: { width: 36, height: 36, borderRadius: 18, marginRight: 8 },
   headerUserName: { fontWeight: '500', color: '#222' },
-  scrollContent: { padding: 24, paddingBottom: 80 },
+  scrollContent: { padding: 32, paddingBottom: 80 },
   dashboard: { width: '100%', marginBottom: 32, flex: 1 },
   profileCard: {
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
-    marginBottom: 16,
     minWidth: 260,
-    flex: 1,
     elevation: 2,
-    shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 6, shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    justifyContent: 'center',
   },
   profileAvatar: { width: 72, height: 72, borderRadius: 36, marginBottom: 12 },
   profileName: { fontSize: 18, fontWeight: 'bold', marginBottom: 2, color: '#222' },
@@ -165,34 +219,38 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 24,
-    flex: 2,
     elevation: 2,
-    shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 6, shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
     minWidth: 260,
+    justifyContent: 'center',
   },
   cardTitle: { fontWeight: 'bold', fontSize: 16, marginBottom: 16, color: '#222' },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderBottomColor: '#f1f1f1',
-    borderBottomWidth: 1,
   },
   searchTitle: { fontWeight: '500', color: '#222' },
   searchTime: { color: '#a1a1aa', fontSize: 12 },
   generatedSheetsSection: { marginTop: 8 },
   sectionTitle: { fontWeight: 'bold', fontSize: 16, marginBottom: 16, color: '#222' },
-  generatedSheetsRow: { width: '100%', justifyContent: 'space-between' },
+  generatedSheetsRow: { width: '100%', justifyContent: 'space-between', alignItems: 'stretch' },
   sheetCard: {
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 20,
-    marginBottom: 16,
     flex: 1,
     minWidth: 260,
-    marginRight: 16,
     elevation: 1,
-    shadowColor: '#000', shadowOpacity: 0.02, shadowRadius: 4, shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#000',
+    shadowOpacity: 0.02,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    justifyContent: 'space-between',
   },
   sheetTitle: { fontWeight: 'bold', fontSize: 15, marginBottom: 6, color: '#2563eb' },
   sheetDesc: { color: '#6b7280', marginBottom: 14 },
