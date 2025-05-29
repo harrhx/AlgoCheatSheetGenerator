@@ -22,7 +22,7 @@ import
 export default function HomePage()
 {
   const { auth } = useFirebase();
-  const { user } = useUserData().userData;
+  const { userData } = useUserData();
   const [topicInput, setTopicInput] = useState('');
 
   // Handler for Generate button
@@ -73,8 +73,8 @@ export default function HomePage()
             {auth.currentUser ? (
               <Pressable onPress={() => router.navigate('/account')}>
                 <View style={styles.headerRight}>
-                  <Image source={{ uri: user.avatar }} style={styles.avatar} />
-                  <Text style={styles.headerUserName}>{user.name}</Text>
+                  <Image source={{ uri: userData?.avatar }} style={styles.avatar} />
+                  <Text style={styles.headerUserName}>{userData?.name}</Text>
                 </View>
               </Pressable>
             ) : (

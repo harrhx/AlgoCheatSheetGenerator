@@ -1,4 +1,7 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { UserDataType } from '@/components/UserDataProvider';
+import useFirebase from '@/hooks/useFirebase';
+import { useLocalSearchParams } from "expo-router";
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import
   {
@@ -13,9 +16,10 @@ import
   } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
-export default function CheatSheetScreen() {
+export default function CheatSheetScreen()
+{
   const params = useLocalSearchParams();
-  const router = useRouter();
+  const { auth, db, updateFirebaseContext } = useFirebase();
   const topicName = typeof params.topic === "string" ? params.topic : "";
   const { width } = useWindowDimensions();
   const isLargeScreen = width > 700;
@@ -25,7 +29,8 @@ export default function CheatSheetScreen() {
   const [progress, setProgress] = useState(0);
   const [cheatSheetHtmlContent, setCheatSheetHtmlContent] = useState('<p>Loading...</p>');
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     setLoading(true);
     let messageIndex = 0;
     let currentProgress = 0;
@@ -37,8 +42,10 @@ export default function CheatSheetScreen() {
       "Finalizing your cheat sheet...",
     ];
 
-    const messageInterval = setInterval(() => {
-      if (messageIndex < loadingMessages.length - 1) {
+    const messageInterval = setInterval(() =>
+    {
+      if (messageIndex < loadingMessages.length - 1)
+      {
         messageIndex++;
         currentProgress += 20;
         setLoadingText(loadingMessages[messageIndex]);
@@ -46,8 +53,10 @@ export default function CheatSheetScreen() {
       }
     }, 2000);
 
-    const fetchCheatSheet = async () => {
-      try {
+    const fetchCheatSheet = async () =>
+    {
+      try
+      {
         const response = await fetch(
           "https://aicheatsheetgeneratorbackend.onrender.com/api/generate-cheatsheet",
           {
@@ -58,11 +67,39 @@ export default function CheatSheetScreen() {
             body: JSON.stringify({ topic: topicName }),
           }
         );
-        const data = await response.json();
-        setCheatSheetHtmlContent(data.html || `<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`);
-      } catch (error) {
+        const data: UserDataType['generatedSheets'][0] = await response.json();
+        const htmlContent = data.html || `<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`;
+        setCheatSheetHtmlContent(htmlContent);
+
+        if (data.html)
+        {
+          const docRef = doc(db, "users", auth.currentUser!.email!);
+          const docSnapshot = await getDoc(docRef);
+          const docData = docSnapshot.data() as UserDataType;
+
+          const newDocData: UserDataType =
+          {
+            ...docData,
+            generatedSheets:
+              [
+                ...docData!.generatedSheets,
+                { ...data, generatedAt: new Date(data.generatedAt).toDateString() }
+              ],
+            recentSearches: [
+              ...docData!.recentSearches,
+              { title: topicName, time: new Date().toDateString() }
+            ],
+          };
+
+          await updateDoc(docRef, newDocData);
+
+          updateFirebaseContext();
+        }
+      } catch (error)
+      {
         setCheatSheetHtmlContent(`<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`);
-      } finally {
+      } finally
+      {
         clearInterval(messageInterval);
         setProgress(100);
         setLoadingText("Complete!");
@@ -73,8 +110,10 @@ export default function CheatSheetScreen() {
     return () => clearInterval(messageInterval);
   }, [topicName]);
 
-  function HtmlCheatSheetViewer() {
-    if (loading) {
+  function HtmlCheatSheetViewer()
+  {
+    if (loading)
+    {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#2563eb" />
@@ -90,7 +129,8 @@ export default function CheatSheetScreen() {
         </View>
       );
     }
-    if (Platform.OS === 'web') {
+    if (Platform.OS === 'web')
+    {
       return (
         <iframe
           srcDoc={cheatSheetHtmlContent}
@@ -98,7 +138,8 @@ export default function CheatSheetScreen() {
           title="Cheat Sheet"
         />
       );
-    } else {
+    } else
+    {
       return (
         <ScrollView contentContainerStyle={{ padding: 16 }}>
           <Text selectable style={{ fontSize: 12, color: '#444' }}>
@@ -161,8 +202,10 @@ export default function CheatSheetScreen() {
               <View style={styles.actionBar}>
                 <TouchableOpacity
                   style={styles.primaryButton}
-                  onPress={() => {
-                    if (Platform.OS === 'web') {
+                  onPress={() =>
+                  {
+                    if (Platform.OS === 'web')
+                    {
                       const blob = new Blob([cheatSheetHtmlContent], { type: 'text/html' });
                       const url = URL.createObjectURL(blob);
                       const a = document.createElement('a');
@@ -170,7 +213,8 @@ export default function CheatSheetScreen() {
                       a.download = 'algo_cheat_sheet.html';
                       a.click();
                       URL.revokeObjectURL(url);
-                    } else {
+                    } else
+                    {
                       alert('Download is only available on web for now.');
                     }
                   }}

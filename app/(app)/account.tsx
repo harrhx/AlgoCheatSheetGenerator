@@ -1,7 +1,6 @@
 import useFirebase from '@/hooks/useFirebase';
 import useUserData from '@/hooks/useUserData';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { Redirect } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import React from 'react';
 import
@@ -19,7 +18,6 @@ export default function DashboardScreen()
 {
   const { auth } = useFirebase();
   const { userData } = useUserData();
-  const { user, recentSearches, generatedSheets } = userData;
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 900;
 
@@ -35,9 +33,6 @@ export default function DashboardScreen()
       console.log(error);
     }
   }
-
-  if (!auth.currentUser)
-    return <Redirect href="/login" />;
 
   return (
     <View style={styles.root}>
@@ -80,16 +75,16 @@ export default function DashboardScreen()
               },
             ]}
           >
-            <Image source={{ uri: user.avatar }} style={styles.profileAvatar} />
-            <Text style={styles.profileName}>{user.name}</Text>
-            <Text style={styles.profileRole}>{user.role}</Text>
+            <Image source={{ uri: userData?.avatar }} style={styles.profileAvatar} />
+            <Text style={styles.profileName}>{userData?.name}</Text>
+            <Text style={styles.profileRole}>{userData?.role}</Text>
             <View style={styles.profileStats}>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{user.created}</Text>
+                <Text style={styles.statNumber}>{userData?.createdAt}</Text>
                 <Text style={styles.statLabel}>Cheat Sheets Created</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{user.explored}</Text>
+                <Text style={styles.statNumber}>{userData?.generatedSheets.length}</Text>
                 <Text style={styles.statLabel}>Topics Explored</Text>
               </View>
             </View>
@@ -106,13 +101,13 @@ export default function DashboardScreen()
             ]}
           >
             <Text style={styles.cardTitle}>Recent Searches</Text>
-            {recentSearches.map((item, idx) => (
+            {userData?.recentSearches.map((item, idx) => (
               <View
                 key={idx}
                 style={[
                   styles.searchRow,
                   {
-                    borderBottomWidth: idx !== recentSearches.length - 1 ? 1 : 0,
+                    borderBottomWidth: idx !== userData.recentSearches.length - 1 ? 1 : 0,
                   },
                 ]}
               >
@@ -139,22 +134,22 @@ export default function DashboardScreen()
               },
             ]}
           >
-            {generatedSheets.map((sheet, idx) => (
+            {userData?.generatedSheets.map((sheet, idx) => (
               <View
                 key={idx}
                 style={[
                   styles.sheetCard,
                   {
                     flex: isLargeScreen ? 1 : undefined,
-                    marginRight: isLargeScreen && idx !== generatedSheets.length - 1 ? 0 : 0,
+                    marginRight: isLargeScreen && idx !== userData.generatedSheets.length - 1 ? 0 : 0,
                     marginBottom: isLargeScreen ? 0 : 16,
                   },
                 ]}
               >
-                <Text style={styles.sheetTitle}>{sheet.title}</Text>
-                <Text style={styles.sheetDesc}>{sheet.desc}</Text>
+                <Text style={styles.sheetTitle}>{sheet.topic}</Text>
+                <Text style={styles.sheetDesc}>{sheet.difficulty}</Text>
                 <View style={styles.sheetFooter}>
-                  <Text style={styles.sheetTime}>{sheet.time}</Text>
+                  <Text style={styles.sheetTime}>{sheet.generatedAt}</Text>
                   <TouchableOpacity>
                     <Text style={styles.sheetLink}>View Sheet</Text>
                   </TouchableOpacity>

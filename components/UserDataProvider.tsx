@@ -1,15 +1,39 @@
-import { createContext, PropsWithChildren, useState } from 'react';
+import useFirebase from '@/hooks/useFirebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { createContext, PropsWithChildren, useEffect, useState } from 'react';
 
 export default function UserDataProvider(props: PropsWithChildren)
 {
-  const [userData, setUserData] = useState<UserDataContextType['userData']>({
-    user,
-    recentSearches,
-    generatedSheets,
-  });
+  const { auth, db } = useFirebase();
+
+  const [userData, setUserData] = useState<UserDataContextType['userData']>(null);
+
+  async function fetchUserData()
+  {
+    const docRef = doc(db, "users", auth.currentUser!.email!);
+    const docSnapshot = await getDoc(docRef);
+    const docData = docSnapshot.data() as UserDataContextType['userData'];
+    setUserData(docData)
+    // Here you can fetch user data from your database if needed
+    console.log('User is logged in:', auth.currentUser);
+    // For now, we are using dummy data
+  }
+
+  useEffect(() =>
+  {
+    if (auth.currentUser)
+      fetchUserData();
+    else
+    {
+      console.log('No user is logged in');
+      // Reset userData if no user is logged in
+      setUserData(null);
+    }
+  }
+    , [auth.currentUser]);
 
   return (
-    <UserDataContext.Provider value={{ userData, setUserData }}>
+    <UserDataContext.Provider value={{ userData:userData, setUserData }}>
       {props.children}
     </UserDataContext.Provider>
   )
@@ -19,18 +43,35 @@ export const UserDataContext = createContext<UserDataContextType>(null as any);
 
 export type UserDataContextType =
   {
-    userData:
-    {
-      user: typeof user;
-      recentSearches: typeof recentSearches;
-      generatedSheets: typeof generatedSheets;
-    };
+    userData: null | UserDataType;
     setUserData: React.Dispatch<React.SetStateAction<UserDataContextType['userData']>>;
+  };
+
+export type UserDataType =
+  {
+    email: string;
+    name: null | string;
+    createdAt: string;
+    role: string; // Default role, can be changed later
+    avatar: string;
+    recentSearches: {
+      title: string;
+      time: string;
+    }[];
+    generatedSheets: {
+      html: string;
+      topic: string;
+      relatedTopics: string[];
+      difficulty: string;
+      programmingLanguage: string;
+      generatedAt: string;
+    }[];
   };
 
 // Dummy data
 const user = {
   name: 'John Doe',
+  email: 'auth@gmail.com',
   role: 'Student',
   avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
   created: 24,

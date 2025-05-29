@@ -1,3 +1,4 @@
+import { UserDataContextType } from '@/components/UserDataProvider';
 import useFirebase from '@/hooks/useFirebase';
 import { router, useLocalSearchParams } from 'expo-router';
 import { createUserWithEmailAndPassword, getRedirectResult, GoogleAuthProvider, signInWithEmailAndPassword, signInWithRedirect } from 'firebase/auth';
@@ -33,10 +34,21 @@ export default function SignUpScreen()
     {
       let response = await createUserWithEmailAndPassword(auth, email, password);
       console.log('created', response);
+
+      const newUserData: UserDataContextType['userData'] =
+      {
+        email,
+        name: null,
+        createdAt: new Date().toDateString(),
+        role: 'Student', // Default role, can be changed later
+        avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+        recentSearches: [],
+        generatedSheets: [],
+      };
+      const docRef = await setDoc(doc(db, 'users', email), newUserData);
+
       response = await signInWithEmailAndPassword(auth, email, password);
       console.log('signed in', response);
-
-      const docRef = await setDoc(doc(db, 'users', email), {});
     }
     catch (error)
     {
@@ -49,7 +61,7 @@ export default function SignUpScreen()
   {
     try
     {
-      console.log('Auth',auth);
+      console.log('Auth', auth);
       const result = await getRedirectResult(auth);
       console.log("Google redirect result:", result);
       if (result)
