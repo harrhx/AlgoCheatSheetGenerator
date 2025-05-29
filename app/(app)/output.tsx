@@ -1,7 +1,9 @@
+import { UserDataType } from '@/components/UserDataProvider';
 import useFirebase from '@/hooks/useFirebase';
 import useUserData from '@/hooks/useUserData';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from "expo-router";
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import
   {
@@ -77,13 +79,36 @@ export default function CheatSheetScreen() {
             body: JSON.stringify({ topic: topicName }),
           }
         );
-        const data = await response.json();
+        const data: UserDataType['generatedSheets'][0] = await response.json();
         const htmlContent = data.html || `<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`;
         setCheatSheetHtmlContent(htmlContent);
-        setRelatedTopics(Array.isArray(data.relatedTopics) ? data.relatedTopics : []);
+
+        if (data.html)
+        {
+          const docRef = doc(db, "users", auth.currentUser!.email!);
+          const docSnapshot = await getDoc(docRef);
+          const docData = docSnapshot.data() as UserDataType;
+
+          const newDocData: UserDataType =
+          {
+            ...docData,
+            generatedSheets:
+              [
+                ...docData!.generatedSheets,
+                { ...data, generatedAt: new Date(data.generatedAt).toDateString() }
+              ],
+            recentSearches: [
+              ...docData!.recentSearches,
+              { title: topicName, time: new Date().toDateString() }
+            ],
+          };
+
+          await updateDoc(docRef, newDocData);
+
+          updateFirebaseContext();
+        }
       } catch (error) {
         setCheatSheetHtmlContent(`<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`);
-        setRelatedTopics([]);
       } finally {
         clearInterval(messageInterval);
         setProgress(100);
