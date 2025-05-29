@@ -44,7 +44,7 @@ export default function LoginScreen()
     {
       console.log('User already logged in, redirecting...');
       if (params.topic)
-        router.replace({ pathname: '/loadingScreen', params: { topic: params.topic } });
+        router.replace({ pathname: '/output', params: { topic: params.topic } });
       else
         router.replace('/');
     }

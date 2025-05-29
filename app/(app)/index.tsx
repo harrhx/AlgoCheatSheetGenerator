@@ -1,7 +1,7 @@
-import useFirebase from '@/hooks/useFirebase';
-import useUserData from '@/hooks/useUserData';
-import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
+import useFirebase from "@/hooks/useFirebase";
+import useUserData from "@/hooks/useUserData";
+import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import
@@ -16,43 +16,38 @@ import
     Text,
     TextInput,
     TouchableOpacity,
-    View
-  } from 'react-native';
+    View,
+  } from "react-native";
 
-export default function HomePage()
-{
+export default function HomePage() {
   const { auth } = useFirebase();
   const { userData } = useUserData();
   const [topicInput, setTopicInput] = useState('');
 
   // Handler for Generate button
-  const handleGenerate = () =>
-  {
-    if (!topicInput.trim())
-    {
-      Alert.alert('Topic Required', 'Please enter an algorithm topic.');
+  const handleGenerate = () => {
+    if (!topicInput.trim()) {
+      Alert.alert("Topic Required", "Please enter an algorithm topic.");
       return;
     }
     // Navigate to loading screen, passing topic
 
-    if (!auth.currentUser)
-    {
+    if (!auth.currentUser) {
       return router.navigate({
-        pathname: '/login',
-        params: { topic: topicInput.trim() }
+        pathname: "/login",
+        params: { topic: topicInput.trim() },
       });
     }
 
     router.navigate({
-      pathname: '/output',
-      params: { topic: topicInput.trim() }
+      pathname: "/output",
+      params: { topic: topicInput.trim() },
     });
     // If using React Navigation, use: navigation.navigate('LoadingScreen', { topic: topicInput.trim() });
   };
 
   // Handler for clicking a popular search
-  const handlePopularSearch = (topic: string) =>
-  {
+  const handlePopularSearch = (topic: string) => {
     setTopicInput(topic);
     // Optionally, auto-trigger generation:
     // router.navigate({ pathname: '/loading', params: { topic } });
@@ -67,11 +62,16 @@ export default function HomePage()
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
             <View style={styles.headerLeft}>
-              <Ionicons name="code-slash-outline" size={24} color="#2563eb" style={{ marginRight: 8 }} />
+              <Ionicons
+                name="code-slash-outline"
+                size={24}
+                color="#2563eb"
+                style={{ marginRight: 8 }}
+              />
               <Text style={styles.logoText}>AlgoCheatSheet</Text>
             </View>
             {auth.currentUser ? (
-              <Pressable onPress={() => router.navigate('/account')}>
+              <Pressable onPress={() => router.navigate("/account")}>
                 <View style={styles.headerRight}>
                   <Image source={{ uri: userData?.avatar }} style={styles.avatar} />
                   <Text style={styles.headerUserName}>{userData?.name}</Text>
@@ -115,15 +115,25 @@ export default function HomePage()
                 returnKeyType="search"
                 blurOnSubmit={true}
               />
-              <TouchableOpacity style={styles.searchButton} onPress={handleGenerate}>
+              <TouchableOpacity
+                style={styles.searchButton}
+                onPress={handleGenerate}
+              >
                 <Text style={styles.searchButtonText}>Generate</Text>
               </TouchableOpacity>
             </View>
 
             <Text style={styles.popularSearch}>Popular searches:</Text>
             <View style={styles.linksRow}>
-              {["Binary Search Trees", "Dynamic Programming", "Graph Algorithms"].map(topic => (
-                <TouchableOpacity key={topic} onPress={() => handlePopularSearch(topic)}>
+              {[
+                "Binary Search Trees",
+                "Dynamic Programming",
+                "Graph Algorithms",
+              ].map((topic) => (
+                <TouchableOpacity
+                  key={topic}
+                  onPress={() => handlePopularSearch(topic)}
+                >
                   <Text style={styles.link}>{topic}</Text>
                 </TouchableOpacity>
               ))}
@@ -136,7 +146,8 @@ export default function HomePage()
               <Text style={styles.icon}>📍</Text>
               <Text style={styles.cardTitle}>Personalized Learning</Text>
               <Text style={styles.cardText}>
-                Get customized cheat sheets that match your learning style and pace
+                Get customized cheat sheets that match your learning style and
+                pace
               </Text>
             </View>
             <View style={styles.card}>
@@ -166,7 +177,8 @@ export default function HomePage()
               <Text style={styles.icon}>🎯</Text>
               <Text style={styles.cardTitle}>Focused Topics</Text>
               <Text style={styles.cardText}>
-                Zero in on specific algorithms or data structures for targeted learning
+                Zero in on specific algorithms or data structures for targeted
+                learning
               </Text>
             </View>
             <View style={styles.card}>
@@ -195,7 +207,6 @@ export default function HomePage()
 
 // ...styles unchanged from your paste...
 
-
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
@@ -214,11 +225,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  logoText: { fontSize: 20, fontWeight: 'bold', color: '#2563eb' },
-  headerRight: { flexDirection: 'row', alignItems: 'center' },
+  headerLeft: { flexDirection: "row", alignItems: "center" },
+  logoText: { fontSize: 20, fontWeight: "bold", color: "#2563eb" },
+  headerRight: { flexDirection: "row", alignItems: "center" },
   avatar: { width: 36, height: 36, borderRadius: 18, marginRight: 8 },
-  headerUserName: { fontWeight: '500', color: '#222' },
+  headerUserName: { fontWeight: "500", color: "#222" },
   logo: {
     fontSize: 20,
     fontWeight: "bold",
