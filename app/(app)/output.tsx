@@ -8,10 +8,39 @@ import {
   Platform,
   useWindowDimensions,
 } from 'react-native';
-import { WebView } from 'react-native-webview';
 import Icon from 'react-native-vector-icons/Feather';
 
-const pdfUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+const cheatSheetHtmlContent = `
+  <html>
+    <head>
+      <style>
+        body { font-family: sans-serif; padding: 20px; }
+        h2 { color: #007bff; }
+        pre { background: #f8f8f8; padding: 12px; border-radius: 6px; }
+      </style>
+    </head>
+    <body>
+      <h2>Dynamic Programming Basics</h2>
+      <p>Dynamic Programming (DP) is a method for solving complex problems by breaking them down into simpler subproblems.</p>
+      <ul>
+        <li>Identify subproblems</li>
+        <li>Store results of subproblems (memoization/tabulation)</li>
+        <li>Build up the solution from stored results</li>
+      </ul>
+      <h3>Example: Fibonacci</h3>
+      <pre><code>
+function fib(n) {
+  if (n <= 1) return n;
+  let dp = [0, 1];
+  for (let i = 2; i <= n; i++) {
+    dp[i] = dp[i-1] + dp[i-2];
+  }
+  return dp[n];
+}
+      </code></pre>
+    </body>
+  </html>
+`;
 
 const relatedTopics = [
   { title: 'Recursion', icon: '🔄' },
@@ -26,36 +55,22 @@ const practiceProblems = [
   { title: 'Edit Distance', difficulty: 'Hard' },
 ];
 
-function PdfViewer() {
+function HtmlCheatSheetViewer() {
   if (Platform.OS === 'web') {
     return (
       <iframe
-        src={`https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdfUrl)}`}
-        style={{
-          width: '100%',
-          height: '100%',
-          border: 'none',
-          borderTopLeftRadius: 12,
-          borderTopRightRadius: 12,
-          display: 'block',
-          flex: 1,
-        }}
-        title="PDF Viewer"
+        srcDoc={cheatSheetHtmlContent}
+        style={{ width: '100%', height: '100%', border: 'none', borderRadius: 12 }}
+        title="Cheat Sheet"
       />
     );
+  } else {
+    return (
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        <Text>WebView is not supported on this platform. Please view this cheat sheet on the web version.</Text>
+      </ScrollView>
+    );
   }
-  return (
-    <WebView
-      source={{ uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdfUrl)}` }}
-      style={{ flex: 1, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
-      startInLoadingState
-      renderError={() => (
-        <View style={styles.errorView}>
-          <Text style={{ color: 'red' }}>Failed to load PDF.</Text>
-        </View>
-      )}
-    />
-  );
 }
 
 export default function CheatSheetScreen() {
@@ -79,78 +94,122 @@ export default function CheatSheetScreen() {
         </View>
       </View>
 
-      <View style={styles.container}>
-        <View style={[styles.contentContainer, { flexDirection: isLargeScreen ? 'row' : 'column' }]}>
-          {/* LEFT PANEL */}
+      <ScrollView style={styles.container} contentContainerStyle={isLargeScreen ? { flex: 1 } : {}}>
+        <View style={[styles.contentContainer, { 
+          flexDirection: isLargeScreen ? 'row' : 'column',
+          flex: isLargeScreen ? 1 : undefined,
+          minHeight: isLargeScreen ? 0 : undefined,
+        }]}>
+          {/* LEFT PANEL - Main Content */}
           <View
             style={[
               styles.leftPanel,
               {
                 marginRight: isLargeScreen ? 16 : 0,
                 marginBottom: isLargeScreen ? 0 : 16,
-                flex: isLargeScreen ? 2 : 1, // <-- Changed here to flex:1 on small screens
+                flex: isLargeScreen ? 2 : undefined,
+                width: isLargeScreen ? undefined : '100%',
+                height: isLargeScreen ? undefined : 500, // Fixed height on mobile
               },
             ]}
           >
-            {/* Make PDF viewer fill available space */}
-            <View style={{ flex: 1 }}>
-              <PdfViewer />
+            <View style={[styles.cheatSheetContainer, { flex: 1 }]}>
+              <HtmlCheatSheetViewer />
             </View>
-            {/* Download button outside the flex:1 container */}
+
             <View style={styles.actionBar}>
               <TouchableOpacity
                 style={styles.primaryButton}
                 onPress={() => {
                   if (Platform.OS === 'web') {
-                    window.open(pdfUrl, '_blank');
+                    const blob = new Blob([cheatSheetHtmlContent], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'algo_cheat_sheet.html';
+                    a.click();
+                    URL.revokeObjectURL(url);
                   } else {
-                    // Handle native download if needed
+                    alert('Download is only available on web for now.');
                   }
                 }}
               >
-                <Text style={styles.primaryButtonText}>⬇️ Download PDF</Text>
+                <Text style={styles.primaryButtonText}>⬇️ Download Cheat Sheet</Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* RIGHT PANEL */}
+          {/* RIGHT PANEL - Sidebar */}
           <View
             style={[
               styles.rightPanel,
               {
-                maxHeight: isLargeScreen ? undefined : 200, // Limit height on small screens
+                flex: isLargeScreen ? 1 : undefined,
+                width: isLargeScreen ? undefined : '100%',
               },
             ]}
           >
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={styles.sidebarSection}>
-                <Text style={styles.sectionTitle}>Related Topics</Text>
-                <View style={styles.topicsGrid}>
-                  {relatedTopics.map((topic, idx) => (
-                    <TouchableOpacity key={idx} style={styles.topicCard}>
-                      <Text style={styles.topicIcon}>{topic.icon}</Text>
-                      <Text style={styles.topicTitle}>{topic.title}</Text>
+            {isLargeScreen ? (
+              <ScrollView 
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+              >
+                <View style={styles.sidebarSection}>
+                  <Text style={styles.sectionTitle}>Related Topics</Text>
+                  <View style={styles.topicsGrid}>
+                    {relatedTopics.map((topic, idx) => (
+                      <TouchableOpacity key={idx} style={styles.topicCard}>
+                        <Text style={styles.topicIcon}>{topic.icon}</Text>
+                        <Text style={styles.topicTitle}>{topic.title}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                <View style={styles.sidebarSection}>
+                  <Text style={styles.sectionTitle}>Practice Problems</Text>
+                  {practiceProblems.map((problem, idx) => (
+                    <TouchableOpacity key={idx} style={styles.problemItem}>
+                      <View>
+                        <Text style={styles.problemTitle}>{problem.title}</Text>
+                        <Text style={styles.difficultyText}>Difficulty: {problem.difficulty}</Text>
+                      </View>
+                      <Text style={styles.arrow}>→</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
-              </View>
+              </ScrollView>
+            ) : (
+              <>
+                <View style={styles.sidebarSection}>
+                  <Text style={styles.sectionTitle}>Related Topics</Text>
+                  <View style={styles.topicsGrid}>
+                    {relatedTopics.map((topic, idx) => (
+                      <TouchableOpacity key={idx} style={styles.topicCard}>
+                        <Text style={styles.topicIcon}>{topic.icon}</Text>
+                        <Text style={styles.topicTitle}>{topic.title}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
 
-              <View style={styles.sidebarSection}>
-                <Text style={styles.sectionTitle}>Practice Problems</Text>
-                {practiceProblems.map((problem, idx) => (
-                  <TouchableOpacity key={idx} style={styles.problemItem}>
-                    <View>
-                      <Text style={styles.problemTitle}>{problem.title}</Text>
-                      <Text style={styles.difficultyText}>Difficulty: {problem.difficulty}</Text>
-                    </View>
-                    <Text style={styles.arrow}>→</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </ScrollView>
+                <View style={styles.sidebarSection}>
+                  <Text style={styles.sectionTitle}>Practice Problems</Text>
+                  {practiceProblems.map((problem, idx) => (
+                    <TouchableOpacity key={idx} style={styles.problemItem}>
+                      <View>
+                        <Text style={styles.problemTitle}>{problem.title}</Text>
+                        <Text style={styles.difficultyText}>Difficulty: {problem.difficulty}</Text>
+                      </View>
+                      <Text style={styles.arrow}>→</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </>
+            )}
           </View>
         </View>
-      </View>
+      </ScrollView>
     </>
   );
 }
@@ -191,11 +250,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#f0f0f0',
   },
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#f5f5f5' 
+  },
   contentContainer: {
-    flex: 1,
     padding: 16,
-    minHeight: 0, // Important to fix flexbox scroll issues
   },
   leftPanel: {
     backgroundColor: 'white',
@@ -203,6 +263,15 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cheatSheetContainer: {
+    flex: 1,
+    minHeight: 400, // Ensure minimum height for content
   },
   actionBar: {
     padding: 12,
@@ -222,18 +291,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   rightPanel: {
-    flex: 1,
     backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
-    minHeight: 400,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  sidebarSection: { marginBottom: 24 },
+  sidebarSection: { 
+    marginBottom: 24 
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -255,7 +324,10 @@ const styles = StyleSheet.create({
     borderColor: '#e9ecef',
     marginBottom: 12,
   },
-  topicIcon: { fontSize: 24, marginBottom: 4 },
+  topicIcon: { 
+    fontSize: 24, 
+    marginBottom: 4 
+  },
   topicTitle: {
     fontSize: 12,
     fontWeight: '600',
@@ -274,8 +346,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e9ecef',
   },
-  problemTitle: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 2 },
-  difficultyText: { fontSize: 12, color: '#666' },
-  arrow: { fontSize: 16, color: '#007bff', fontWeight: 'bold' },
-  errorView: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  problemTitle: { 
+    fontSize: 14, 
+    fontWeight: '600', 
+    color: '#333', 
+    marginBottom: 2 
+  },
+  difficultyText: { 
+    fontSize: 12, 
+    color: '#666' 
+  },
+  arrow: { 
+    fontSize: 16, 
+    color: '#007bff', 
+    fontWeight: 'bold' 
+  },
 });
