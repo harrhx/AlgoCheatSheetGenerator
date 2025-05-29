@@ -3,9 +3,10 @@ import useUserData from '@/hooks/useUserData';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import
   {
+    Alert,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -18,10 +19,32 @@ import
     View
   } from 'react-native';
 
-export default function HomePage()
-{
+export default function HomePage() {
   const { auth } = useFirebase();
   const { user } = useUserData().userData;
+  const [topicInput, setTopicInput] = useState('');
+
+  // Handler for Generate button
+  const handleGenerate = () => {
+    if (!topicInput.trim()) {
+      Alert.alert('Topic Required', 'Please enter an algorithm topic.');
+      return;
+    }
+    // Navigate to loading screen, passing topic
+    console.log("hello");
+    router.navigate({
+      pathname: '/loadingScreen',
+      params: { topic: topicInput.trim() }
+    });
+    // If using React Navigation, use: navigation.navigate('LoadingScreen', { topic: topicInput.trim() });
+  };
+
+  // Handler for clicking a popular search
+  const handlePopularSearch = (topic: string) => {
+    setTopicInput(topic);
+    // Optionally, auto-trigger generation:
+    // router.navigate({ pathname: '/loading', params: { topic } });
+  };
 
   return (
     <SafeAreaView style={styles.wrapper}>
