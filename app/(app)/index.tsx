@@ -1,4 +1,5 @@
 import useFirebase from '@/hooks/useFirebase';
+import useUserData from '@/hooks/useUserData';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from "expo-router";
@@ -15,18 +16,10 @@ import
     View
   } from 'react-native';
 
-// Dummy data
-const user = {
-  name: 'John Doe',
-  role: 'Student',
-  avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-  created: 24,
-  explored: 12,
-};
-
 export default function HomePage()
 {
   const { auth } = useFirebase();
+  const { user } = useUserData().userData;
 
   return (
     <SafeAreaView style={styles.wrapper}>

@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 import { createContext, PropsWithChildren, useState } from 'react';
 
 export default function FirebaseProvider(props: PropsWithChildren)
@@ -8,6 +9,7 @@ export default function FirebaseProvider(props: PropsWithChildren)
     firebaseConfig,
     app,
     auth,
+    db,
     updateFirebaseContext: () => setFirebase({ ...firebase })
   });
 
@@ -25,6 +27,7 @@ export type FirebaseContextType =
     firebaseConfig: typeof firebaseConfig;
     app: ReturnType<typeof initializeApp>;
     auth: ReturnType<typeof getAuth>;
+    db: ReturnType<typeof getFirestore>;
     updateFirebaseContext: () => void;
   };
 
@@ -40,3 +43,4 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);

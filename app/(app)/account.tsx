@@ -1,7 +1,7 @@
 import useFirebase from '@/hooks/useFirebase';
 import useUserData from '@/hooks/useUserData';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { Redirect, router } from 'expo-router';
+import { Redirect } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import React from 'react';
 import
@@ -17,7 +17,7 @@ import
 
 export default function DashboardScreen()
 {
-  const { auth, updateFirebaseContext } = useFirebase();
+  const { auth } = useFirebase();
   const { userData } = useUserData();
   const { user, recentSearches, generatedSheets } = userData;
   const { width } = useWindowDimensions();
@@ -27,10 +27,8 @@ export default function DashboardScreen()
   {
     try
     {
-      let response = await signOut(auth);
+      const response = await signOut(auth);
       console.log('signed out', response);
-      updateFirebaseContext();
-      router.replace('/login');
     }
     catch (error)
     {

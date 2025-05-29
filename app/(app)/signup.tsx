@@ -1,7 +1,8 @@
 import useFirebase from '@/hooks/useFirebase';
 import { router } from 'expo-router';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import React, { useState } from 'react';
+import { doc, setDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
 import
   {
     ScrollView,
@@ -15,7 +16,7 @@ import { Button, Checkbox, TextInput } from 'react-native-paper';
 
 export default function SignUpScreen()
 {
-  const { auth, updateFirebaseContext } = useFirebase();
+  const { auth, db } = useFirebase();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,17 +34,24 @@ export default function SignUpScreen()
       console.log('created', response);
       response = await signInWithEmailAndPassword(auth, email, password);
       console.log('signed in', response);
-      updateFirebaseContext();
-      if (router.canGoBack())
-        router.back();
-      else
-        router.navigate('/');
+
+      const docRef = await setDoc(doc(db, 'users', email), {});
     }
     catch (error)
     {
       console.log(error);
     }
   }
+
+  useEffect(() =>
+  {
+    if (auth.currentUser)
+    {
+      console.log('User already logged in, redirecting...');
+      router.replace('/');
+    }
+  }
+    , [auth.currentUser]);
 
   return (
     <ScrollView
@@ -107,6 +115,7 @@ export default function SignUpScreen()
           <View style={styles.checkboxRow}>
             <Checkbox
               status={rememberMe ? 'checked' : 'unchecked'}
+              color='#2563eb'
               onPress={() => setRememberMe(!rememberMe)}
             />
             <Text>Remember me</Text>
