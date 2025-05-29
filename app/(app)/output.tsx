@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Platform,
-  useWindowDimensions,
-  ActivityIndicator,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
 import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from 'react';
+import
+  {
+    ActivityIndicator,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    useWindowDimensions,
+    View,
+  } from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
 
 export default function CheatSheetScreen() {
   const params = useLocalSearchParams();
@@ -48,7 +49,7 @@ export default function CheatSheetScreen() {
     const fetchCheatSheet = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3001/api/generate-cheatsheet",
+          "https://aicheatsheetgeneratorbackend.onrender.com/api/generate-cheatsheet",
           {
             method: "POST",
             headers: {

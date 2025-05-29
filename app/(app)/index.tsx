@@ -44,7 +44,7 @@ export default function HomePage()
     }
 
     router.navigate({
-      pathname: '/loadingScreen',
+      pathname: '/output',
       params: { topic: topicInput.trim() }
     });
     // If using React Navigation, use: navigation.navigate('LoadingScreen', { topic: topicInput.trim() });
