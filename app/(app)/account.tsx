@@ -1,17 +1,17 @@
 import useFirebase from '@/hooks/useFirebase';
 import useUserData from '@/hooks/useUserData';
 import { Feather, Ionicons } from '@expo/vector-icons';
+import { Redirect, router } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import React from 'react';
 import
   {
-    Image,
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     useWindowDimensions,
-    View,
+    View
   } from 'react-native';
 
 export default function DashboardScreen()
@@ -33,6 +33,9 @@ export default function DashboardScreen()
       console.log(error);
     }
   }
+
+  if (!auth.currentUser)
+    return <Redirect href="/login" />;
 
   return (
     <View style={styles.root}>
@@ -75,15 +78,15 @@ export default function DashboardScreen()
               },
             ]}
           >
-            <Image source={{ uri: userData?.avatar }} style={styles.profileAvatar} />
-            <Text style={styles.profileName}>{userData?.name}</Text>
+            <Ionicons name="person-circle-outline" size={80} color="#e0e0e0" style={{ marginBottom: 12 }} />
+            <Text style={styles.profileName}>{userData?.email}</Text>
             <Text style={styles.profileRole}>{userData?.role}</Text>
             <View style={styles.profileStats}>
               <View style={styles.statItem}>
                 <Text style={styles.statNumber}>{userData?.createdAt}</Text>
-                <Text style={styles.statLabel}>Cheat Sheets Created</Text>
+                <Text style={styles.statLabel}>Account Created</Text>
               </View>
-              <View style={styles.statItem}>
+              <View style={[styles.statItem, { paddingHorizontal: 16 }]}>
                 <Text style={styles.statNumber}>{userData?.generatedSheets.length}</Text>
                 <Text style={styles.statLabel}>Topics Explored</Text>
               </View>
@@ -101,7 +104,7 @@ export default function DashboardScreen()
             ]}
           >
             <Text style={styles.cardTitle}>Recent Searches</Text>
-            {userData?.recentSearches.map((item, idx) => (
+            {userData?.recentSearches.slice(0, 3).map((item, idx) => (
               <View
                 key={idx}
                 style={[
@@ -150,7 +153,7 @@ export default function DashboardScreen()
                 <Text style={styles.sheetDesc}>{sheet.difficulty}</Text>
                 <View style={styles.sheetFooter}>
                   <Text style={styles.sheetTime}>{sheet.generatedAt}</Text>
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={() => router.navigate({ pathname: '/output', params: { generatedAt: sheet.generatedAt } })} >
                     <Text style={styles.sheetLink}>View Sheet</Text>
                   </TouchableOpacity>
                 </View>
@@ -208,9 +211,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   profileAvatar: { width: 72, height: 72, borderRadius: 36, marginBottom: 12 },
-  profileName: { fontSize: 18, fontWeight: 'bold', marginBottom: 2, color: '#222' },
+  profileName: { fontSize: 16, fontWeight: 'bold', marginBottom: 2, color: '#222' },
   profileRole: { color: '#6b7280', marginBottom: 16 },
-  profileStats: { flexDirection: 'row', marginTop: 8 },
+  profileStats: { flexDirection: 'row', marginTop: 8, flexWrap: 'wrap', justifyContent: 'center', gap: 16 },
   statItem: { alignItems: 'center', marginHorizontal: 12 },
   statNumber: { fontWeight: 'bold', fontSize: 16, color: '#2563eb' },
   statLabel: { color: '#6b7280', fontSize: 12, marginTop: 2, textAlign: 'center' },

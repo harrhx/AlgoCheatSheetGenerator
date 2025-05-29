@@ -1,9 +1,10 @@
 import { UserDataType } from '@/components/UserDataProvider';
 import useFirebase from '@/hooks/useFirebase';
-import { useLocalSearchParams } from "expo-router";
+import useUserData from '@/hooks/useUserData';
+import { Ionicons } from '@expo/vector-icons';
+import { router, useLocalSearchParams } from "expo-router";
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { Ionicons } from '@expo/vector-icons';
 import
   {
     ActivityIndicator,
@@ -21,6 +22,7 @@ export default function CheatSheetScreen()
 {
   const params = useLocalSearchParams();
   const { auth, db, updateFirebaseContext } = useFirebase();
+  const { userData } = useUserData();
   const topicName = typeof params.topic === "string" ? params.topic : "";
   const { width } = useWindowDimensions();
   const isLargeScreen = width > 700;
@@ -59,7 +61,7 @@ export default function CheatSheetScreen()
       try
       {
         const response = await fetch(
-          "http://localhost:3001/api/generate-cheatsheet",
+          "https://aicheatsheetgeneratorbackend.onrender.com/api/generate-cheatsheet",
           {
             method: "POST",
             headers: {
@@ -107,9 +109,16 @@ export default function CheatSheetScreen()
         setTimeout(() => setLoading(false), 500);
       }
     };
-    fetchCheatSheet();
+    if (params.generatedAt)
+    {
+      console.log("Fetching existing cheat sheet for generatedAt:", params.generatedAt);
+      setLoading(false);
+      setCheatSheetHtmlContent(userData?.generatedSheets.find(sheet => sheet.generatedAt === params.generatedAt)?.html || `<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`);
+    }
+    else
+      fetchCheatSheet();
     return () => clearInterval(messageInterval);
-  }, [topicName]);
+  }, [auth.currentUser, params.topic, params.generatedAt]);
 
   function HtmlCheatSheetViewer()
   {
@@ -172,7 +181,7 @@ export default function CheatSheetScreen()
           <Text style={styles.title}>AlgoCheatSheet</Text>
         </View>
         <View style={styles.rightSection}>
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.navigate('/account')} >
             <Icon name="user" size={20} color="#000" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton}>
@@ -282,7 +291,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginRight: 8,
   },
-  title: {fontSize: 20, fontWeight: "bold", color: "#2563eb"},
+  title: { fontSize: 20, fontWeight: "bold", color: "#2563eb" },
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',

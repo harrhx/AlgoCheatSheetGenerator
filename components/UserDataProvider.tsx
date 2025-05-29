@@ -33,7 +33,7 @@ export default function UserDataProvider(props: PropsWithChildren)
     , [auth.currentUser]);
 
   return (
-    <UserDataContext.Provider value={{ userData:userData, setUserData }}>
+    <UserDataContext.Provider value={{ userData, setUserData }}>
       {props.children}
     </UserDataContext.Provider>
   )

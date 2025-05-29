@@ -1,7 +1,6 @@
 import useFirebase from "@/hooks/useFirebase";
 import useUserData from "@/hooks/useUserData";
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import
@@ -19,20 +18,24 @@ import
     View,
   } from "react-native";
 
-export default function HomePage() {
+export default function HomePage()
+{
   const { auth } = useFirebase();
   const { userData } = useUserData();
   const [topicInput, setTopicInput] = useState('');
 
   // Handler for Generate button
-  const handleGenerate = () => {
-    if (!topicInput.trim()) {
+  const handleGenerate = () =>
+  {
+    if (!topicInput.trim())
+    {
       Alert.alert("Topic Required", "Please enter an algorithm topic.");
       return;
     }
     // Navigate to loading screen, passing topic
 
-    if (!auth.currentUser) {
+    if (!auth.currentUser)
+    {
       return router.navigate({
         pathname: "/login",
         params: { topic: topicInput.trim() },
@@ -47,7 +50,8 @@ export default function HomePage() {
   };
 
   // Handler for clicking a popular search
-  const handlePopularSearch = (topic: string) => {
+  const handlePopularSearch = (topic: string) =>
+  {
     setTopicInput(topic);
     // Optionally, auto-trigger generation:
     // router.navigate({ pathname: '/loading', params: { topic } });
@@ -73,8 +77,8 @@ export default function HomePage() {
             {auth.currentUser ? (
               <Pressable onPress={() => router.navigate("/account")}>
                 <View style={styles.headerRight}>
-                  <Image source={{ uri: userData?.avatar }} style={styles.avatar} />
-                  <Text style={styles.headerUserName}>{userData?.name}</Text>
+                  <Ionicons name="person-circle-outline" size={35} color="#e0e0e0" style={{ transform: [{ scale: 1.2 }], marginRight: 15 }} />
+                  <Text style={styles.headerUserName}>{userData?.email.split('@')[0]}</Text>
                 </View>
               </Pressable>
             ) : (
