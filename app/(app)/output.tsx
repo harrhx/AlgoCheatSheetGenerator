@@ -1,6 +1,7 @@
 import useFirebase from '@/hooks/useFirebase';
+import useUserData from '@/hooks/useUserData';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from 'react';
 import
   {
@@ -9,6 +10,7 @@ import
     ScrollView,
     StyleSheet,
     Text,
+    TextInput,
     TouchableOpacity,
     useWindowDimensions,
     View,
@@ -30,6 +32,7 @@ const hardcodedRelatedTopics = [
 export default function CheatSheetScreen() {
   const params = useLocalSearchParams();
   const { auth, db, updateFirebaseContext } = useFirebase();
+  const { userData } = useUserData();
   const topicName = typeof params.topic === "string" ? params.topic : "";
   const { width } = useWindowDimensions();
   const isLargeScreen = width > 700;
