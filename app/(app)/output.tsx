@@ -9,6 +9,7 @@ import
   {
     ActivityIndicator,
     Platform,
+    Pressable,
     ScrollView,
     StyleSheet,
     Text,
@@ -17,7 +18,6 @@ import
     useWindowDimensions,
     View,
   } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
 
 // Hardcoded topics with icons
 const hardcodedRelatedTopics = [
@@ -29,7 +29,8 @@ const hardcodedRelatedTopics = [
   { title: 'Sorting Algorithms', icon: '🔢' },
 ];
 
-export default function CheatSheetScreen() {
+export default function CheatSheetScreen()
+{
   const params = useLocalSearchParams();
   const { auth, db, updateFirebaseContext } = useFirebase();
   const { userData } = useUserData();
@@ -44,7 +45,8 @@ export default function CheatSheetScreen() {
   const [relatedTopics, setRelatedTopics] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState('');
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     setLoading(true);
     let messageIndex = 0;
     let currentProgress = 0;
@@ -56,8 +58,10 @@ export default function CheatSheetScreen() {
       "Finalizing your cheat sheet...",
     ];
 
-    const messageInterval = setInterval(() => {
-      if (messageIndex < loadingMessages.length - 1) {
+    const messageInterval = setInterval(() =>
+    {
+      if (messageIndex < loadingMessages.length - 1)
+      {
         messageIndex++;
         currentProgress += 20;
         setLoadingText(loadingMessages[messageIndex]);
@@ -65,8 +69,10 @@ export default function CheatSheetScreen() {
       }
     }, 2000);
 
-    const fetchCheatSheet = async () => {
-      try {
+    const fetchCheatSheet = async () =>
+    {
+      try
+      {
         const response = await fetch(
           "https://aicheatsheetgeneratorbackend.onrender.com/api/generate-cheatsheet",
           {
@@ -105,9 +111,11 @@ export default function CheatSheetScreen() {
 
           updateFirebaseContext();
         }
-      } catch (error) {
+      } catch (error)
+      {
         setCheatSheetHtmlContent(`<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`);
-      } finally {
+      } finally
+      {
         clearInterval(messageInterval);
         setProgress(100);
         setLoadingText("Complete!");
@@ -125,8 +133,10 @@ export default function CheatSheetScreen() {
     return () => clearInterval(messageInterval);
   }, [auth.currentUser, params.topic, params.generatedAt]);
 
-  function HtmlCheatSheetViewer() {
-    if (loading) {
+  function HtmlCheatSheetViewer()
+  {
+    if (loading)
+    {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#2563eb" />
@@ -142,7 +152,8 @@ export default function CheatSheetScreen() {
         </View>
       );
     }
-    if (Platform.OS === 'web') {
+    if (Platform.OS === 'web')
+    {
       return (
         <iframe
           srcDoc={cheatSheetHtmlContent}
@@ -150,7 +161,8 @@ export default function CheatSheetScreen() {
           title="Cheat Sheet"
         />
       );
-    } else {
+    } else
+    {
       return (
         <ScrollView contentContainerStyle={{ padding: 16 }}>
           <Text selectable style={{ fontSize: 12, color: '#444' }}>
@@ -175,7 +187,8 @@ export default function CheatSheetScreen() {
   ];
 
   // Handler for user to search a new topic
-  const handleSearch = () => {
+  const handleSearch = () =>
+  {
     if (!searchInput.trim()) return;
     router.replace({ pathname: "/output", params: { topic: searchInput.trim() } });
     setSearchInput('');
@@ -189,9 +202,12 @@ export default function CheatSheetScreen() {
           <Text style={styles.title}>AlgoCheatSheet</Text>
         </View>
         <View style={styles.rightSection}>
-          <TouchableOpacity style={styles.iconButton} onPress={() => router.navigate('/account')} >
-            <Icon name="user" size={20} color="#000" />
-          </TouchableOpacity>
+          <Pressable onPress={() => router.navigate("/account")}>
+            <View style={styles.headerRight}>
+              <Ionicons name="person-circle-outline" size={35} color="#e0e0e0" style={{ transform: [{ scale: 1.2 }], marginRight: 15 }} />
+              <Text style={styles.headerUserName}>{userData?.email.split('@')[0]}</Text>
+            </View>
+          </Pressable>
         </View>
       </View>
 
@@ -215,8 +231,10 @@ export default function CheatSheetScreen() {
               <View style={styles.actionBar}>
                 <TouchableOpacity
                   style={styles.primaryButton}
-                  onPress={() => {
-                    if (Platform.OS === 'web') {
+                  onPress={() =>
+                  {
+                    if (Platform.OS === 'web')
+                    {
                       const blob = new Blob([cheatSheetHtmlContent], { type: 'text/html' });
                       const url = URL.createObjectURL(blob);
                       const a = document.createElement('a');
@@ -224,7 +242,8 @@ export default function CheatSheetScreen() {
                       a.download = 'algo_cheat_sheet.html';
                       a.click();
                       URL.revokeObjectURL(url);
-                    } else {
+                    } else
+                    {
                       alert('Download is only available on web for now.');
                     }
                   }}
@@ -308,11 +327,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginRight: 8,
   },
-  title: {fontSize: 20, fontWeight: "bold", color: "#2563eb"},
+  title: { fontSize: 20, fontWeight: "bold", color: "#2563eb" },
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  headerRight: { flexDirection: "row", alignItems: "center" },
+  headerUserName: { fontWeight: "500", color: "#222" },
   iconButton: {
     marginLeft: 12,
     padding: 8,

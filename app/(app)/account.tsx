@@ -4,14 +4,15 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { Redirect, router } from "expo-router";
 import { signOut } from "firebase/auth";
 import React from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import
+  {
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    useWindowDimensions,
+    View,
+  } from "react-native";
 
 export default function DashboardScreen() {
   const { auth } = useFirebase();
@@ -140,8 +141,9 @@ export default function DashboardScreen() {
             style={[
               styles.generatedSheetsRow,
               {
-                flexDirection: isLargeScreen ? "row" : "column",
-                gap: isLargeScreen ? 24 : 0,
+                flexDirection: "row",
+                flexWrap: "wrap",
+                gap: 18,
               },
             ]}
           >
@@ -157,7 +159,6 @@ export default function DashboardScreen() {
                       idx !== userData.generatedSheets.length - 1
                         ? 0
                         : 0,
-                    marginBottom: isLargeScreen ? 0 : 16,
                   },
                 ]}
               >

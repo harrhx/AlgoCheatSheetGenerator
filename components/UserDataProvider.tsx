@@ -4,7 +4,8 @@ import { createContext, PropsWithChildren, useEffect, useState } from 'react';
 
 export default function UserDataProvider(props: PropsWithChildren)
 {
-  const { auth, db } = useFirebase();
+  const firebase = useFirebase();
+  const { db, auth } = firebase;
 
   const [userData, setUserData] = useState<UserDataContextType['userData']>(null);
 
@@ -29,7 +30,7 @@ export default function UserDataProvider(props: PropsWithChildren)
       setUserData(null);
     }
   }
-    , [auth.currentUser]);
+    , [firebase, auth.currentUser]);
 
   return (
     <UserDataContext.Provider value={{ userData, setUserData }}>
