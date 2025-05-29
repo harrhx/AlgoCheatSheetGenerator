@@ -2,18 +2,20 @@ import useFirebase from '@/hooks/useFirebase';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from "expo-router";
-import React from "react";
-import
-  {
-    KeyboardAvoidingView,
-    Platform, Pressable, SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-  } from 'react-native';
+import React, { useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Alert
+} from 'react-native';
 
 // Dummy data
 const user = {
@@ -24,9 +26,31 @@ const user = {
   explored: 12,
 };
 
-export default function HomePage()
-{
+export default function HomePage() {
   const { auth } = useFirebase();
+  const [topicInput, setTopicInput] = useState('');
+
+  // Handler for Generate button
+  const handleGenerate = () => {
+    if (!topicInput.trim()) {
+      Alert.alert('Topic Required', 'Please enter an algorithm topic.');
+      return;
+    }
+    // Navigate to loading screen, passing topic
+    console.log("hello");
+    router.navigate({
+      pathname: '/loadingScreen',
+      params: { topic: topicInput.trim() }
+    });
+    // If using React Navigation, use: navigation.navigate('LoadingScreen', { topic: topicInput.trim() });
+  };
+
+  // Handler for clicking a popular search
+  const handlePopularSearch = (topic: string) => {
+    setTopicInput(topic);
+    // Optionally, auto-trigger generation:
+    // router.navigate({ pathname: '/loading', params: { topic } });
+  };
 
   return (
     <SafeAreaView style={styles.wrapper}>
@@ -40,31 +64,29 @@ export default function HomePage()
               <Ionicons name="code-slash-outline" size={24} color="#2563eb" style={{ marginRight: 8 }} />
               <Text style={styles.logoText}>AlgoCheatSheet</Text>
             </View>
-            {
-              auth.currentUser
-                ?
-                <Pressable onPress={() => router.navigate('/account')} >
-                  <View style={styles.headerRight}>
-                    <Image source={{ uri: user.avatar }} style={styles.avatar} />
-                    <Text style={styles.headerUserName}>{user.name}</Text>
-                  </View>
-                </Pressable>
-                :
-                <View style={styles.authButtons}>
-                  <TouchableOpacity
-                    style={styles.ghostButton}
-                    onPress={() => router.navigate("/login")}
-                  >
-                    <Text style={styles.ghostButtonText}>Login</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.primaryButton}
-                    onPress={() => router.navigate("/signup")}
-                  >
-                    <Text style={styles.primaryButtonText}>Sign Up</Text>
-                  </TouchableOpacity>
+            {auth.currentUser ? (
+              <Pressable onPress={() => router.navigate('/account')}>
+                <View style={styles.headerRight}>
+                  <Image source={{ uri: user.avatar }} style={styles.avatar} />
+                  <Text style={styles.headerUserName}>{user.name}</Text>
                 </View>
-            }
+              </Pressable>
+            ) : (
+              <View style={styles.authButtons}>
+                <TouchableOpacity
+                  style={styles.ghostButton}
+                  onPress={() => router.navigate("/login")}
+                >
+                  <Text style={styles.ghostButtonText}>Login</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={() => router.navigate("/signup")}
+                >
+                  <Text style={styles.primaryButtonText}>Sign Up</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
 
           <View style={styles.hero}>
@@ -81,27 +103,34 @@ export default function HomePage()
                 placeholder="Search for an algorithm"
                 style={styles.input}
                 placeholderTextColor="#888"
+                value={topicInput}
+                onChangeText={setTopicInput}
+                onSubmitEditing={handleGenerate}
+                returnKeyType="search"
+                blurOnSubmit={true}
               />
-              <TouchableOpacity style={styles.searchButton}>
+              <TouchableOpacity style={styles.searchButton} onPress={handleGenerate}>
                 <Text style={styles.searchButtonText}>Generate</Text>
               </TouchableOpacity>
             </View>
 
             <Text style={styles.popularSearch}>Popular searches:</Text>
             <View style={styles.linksRow}>
-              <Text style={styles.link}>Binary Search Trees</Text>
-              <Text style={styles.link}>Dynamic Programming</Text>
-              <Text style={styles.link}>Graph Algorithms</Text>
+              {["Binary Search Trees", "Dynamic Programming", "Graph Algorithms"].map(topic => (
+                <TouchableOpacity key={topic} onPress={() => handlePopularSearch(topic)}>
+                  <Text style={styles.link}>{topic}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
 
+          {/* ...rest of your features and footer unchanged... */}
           <View style={styles.features}>
             <View style={styles.card}>
               <Text style={styles.icon}>📍</Text>
               <Text style={styles.cardTitle}>Personalized Learning</Text>
               <Text style={styles.cardText}>
-                Get customized cheat sheets that match your learning style and
-                pace
+                Get customized cheat sheets that match your learning style and pace
               </Text>
             </View>
             <View style={styles.card}>
@@ -131,8 +160,7 @@ export default function HomePage()
               <Text style={styles.icon}>🎯</Text>
               <Text style={styles.cardTitle}>Focused Topics</Text>
               <Text style={styles.cardText}>
-                Zero in on specific algorithms or data structures for targeted
-                learning
+                Zero in on specific algorithms or data structures for targeted learning
               </Text>
             </View>
             <View style={styles.card}>
@@ -158,6 +186,9 @@ export default function HomePage()
     </SafeAreaView>
   );
 }
+
+// ...styles unchanged from your paste...
+
 
 const styles = StyleSheet.create({
   wrapper: {
