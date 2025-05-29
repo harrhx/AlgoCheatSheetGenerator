@@ -1,11 +1,18 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { createContext, PropsWithChildren } from 'react';
+import { createContext, PropsWithChildren, useState } from 'react';
 
 export default function FirebaseProvider(props: PropsWithChildren)
 {
+  const [firebase, setFirebase] = useState<FirebaseContextType>({
+    firebaseConfig,
+    app,
+    auth,
+    updateFirebaseContext: () => setFirebase({ ...firebase })
+  });
+
   return (
-    <FirebaseContext.Provider value={{ firebaseConfig, app, auth }}>
+    <FirebaseContext.Provider value={firebase}>
       {props.children}
     </FirebaseContext.Provider>
   )
@@ -18,6 +25,7 @@ export type FirebaseContextType =
     firebaseConfig: typeof firebaseConfig;
     app: ReturnType<typeof initializeApp>;
     auth: ReturnType<typeof getAuth>;
+    updateFirebaseContext: () => void;
   };
 
 const firebaseConfig = {

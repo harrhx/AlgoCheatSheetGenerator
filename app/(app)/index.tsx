@@ -1,18 +1,33 @@
+import useFirebase from '@/hooks/useFirebase';
+import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router } from "expo-router";
 import React from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  SafeAreaView,
-} from "react-native";
+import
+  {
+    KeyboardAvoidingView,
+    Platform, Pressable, SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+  } from 'react-native';
 
-export default function HomePage() {
+// Dummy data
+const user = {
+  name: 'John Doe',
+  role: 'Student',
+  avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+  created: 24,
+  explored: 12,
+};
+
+export default function HomePage()
+{
+  const { auth } = useFirebase();
+
   return (
     <SafeAreaView style={styles.wrapper}>
       <KeyboardAvoidingView
@@ -21,21 +36,35 @@ export default function HomePage() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <Text style={styles.logo}>AlgoCheatSheet</Text>
-            <View style={styles.authButtons}>
-              <TouchableOpacity
-                style={styles.ghostButton}
-                onPress={() => router.navigate("/login")}
-              >
-                <Text style={styles.ghostButtonText}>Login</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={() => router.navigate("/signup")}
-              >
-                <Text style={styles.primaryButtonText}>Sign Up</Text>
-              </TouchableOpacity>
+            <View style={styles.headerLeft}>
+              <Ionicons name="code-slash-outline" size={24} color="#2563eb" style={{ marginRight: 8 }} />
+              <Text style={styles.logoText}>AlgoCheatSheet</Text>
             </View>
+            {
+              auth.currentUser
+                ?
+                <Pressable onPress={() => router.navigate('/account')} >
+                  <View style={styles.headerRight}>
+                    <Image source={{ uri: user.avatar }} style={styles.avatar} />
+                    <Text style={styles.headerUserName}>{user.name}</Text>
+                  </View>
+                </Pressable>
+                :
+                <View style={styles.authButtons}>
+                  <TouchableOpacity
+                    style={styles.ghostButton}
+                    onPress={() => router.navigate("/login")}
+                  >
+                    <Text style={styles.ghostButtonText}>Login</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.primaryButton}
+                    onPress={() => router.navigate("/signup")}
+                  >
+                    <Text style={styles.primaryButtonText}>Sign Up</Text>
+                  </TouchableOpacity>
+                </View>
+            }
           </View>
 
           <View style={styles.hero}>
@@ -148,6 +177,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  logoText: { fontSize: 20, fontWeight: 'bold', color: '#2563eb' },
+  headerRight: { flexDirection: 'row', alignItems: 'center' },
+  avatar: { width: 36, height: 36, borderRadius: 18, marginRight: 8 },
+  headerUserName: { fontWeight: '500', color: '#222' },
   logo: {
     fontSize: 20,
     fontWeight: "bold",

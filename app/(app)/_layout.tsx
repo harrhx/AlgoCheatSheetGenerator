@@ -1,4 +1,3 @@
-import FirebaseProvider from '@/components/FirebaseProvider';
 import useFirebase from '@/hooks/useFirebase';
 import { Stack } from "expo-router";
 import { onAuthStateChanged } from 'firebase/auth';
@@ -6,7 +5,7 @@ import { useEffect } from 'react';
 
 export default function RootLayout()
 {
-  const { auth } = useFirebase();
+  const { auth, updateFirebaseContext } = useFirebase();
 
   useEffect(() =>
   {
@@ -18,11 +17,13 @@ export default function RootLayout()
         {
           // User is signed in, you can access user information here
           console.log('User is signed in:', user);
+          updateFirebaseContext();
         }
         else
         {
           // User is signed out
           console.log('User is signed out');
+          updateFirebaseContext();
         }
       }
       catch (error)
@@ -38,8 +39,6 @@ export default function RootLayout()
   },
     []);
   return (
-    <FirebaseProvider>
-      <Stack screenOptions={{ headerShown: false }} />
-    </FirebaseProvider>
+    <Stack screenOptions={{ headerShown: false }} />
   );
 }

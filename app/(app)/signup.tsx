@@ -15,7 +15,7 @@ import { Button, Checkbox, TextInput } from 'react-native-paper';
 
 export default function SignUpScreen()
 {
-  const { auth } = useFirebase();
+  const { auth, updateFirebaseContext } = useFirebase();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,6 +33,11 @@ export default function SignUpScreen()
       console.log('created', response);
       response = await signInWithEmailAndPassword(auth, email, password);
       console.log('signed in', response);
+      updateFirebaseContext();
+      if (router.canGoBack())
+        router.back();
+      else
+        router.navigate('/');
     }
     catch (error)
     {

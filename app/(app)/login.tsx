@@ -15,7 +15,7 @@ import { Button, Checkbox, TextInput } from 'react-native-paper';
 
 export default function LoginScreen()
 {
- const { auth } = useFirebase();
+  const { auth, updateFirebaseContext } = useFirebase();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,18 +24,23 @@ export default function LoginScreen()
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 500;
 
-    async function login()
+  async function login()
+  {
+    try
     {
-      try
-      {
-        const response = await signInWithEmailAndPassword(auth, email, password);
-        console.log('signed in', response);
-      }
-      catch (error)
-      {
-        console.log(error);
-      }
+      const response = await signInWithEmailAndPassword(auth, email, password);
+      console.log('signed in', response);
+      updateFirebaseContext();
+      if (router.canGoBack())
+        router.back();
+      else
+        router.navigate('/');
     }
+    catch (error)
+    {
+      console.log(error);
+    }
+  }
 
   return (
     <ScrollView
@@ -64,9 +69,9 @@ export default function LoginScreen()
       ]}>
         <View style={styles.tab}>
           <Text style={styles.activeTab}>Login</Text>
-            <TouchableOpacity onPress={() => {router.replace('/signup')}}>
+          <TouchableOpacity onPress={() => { router.replace('/signup') }}>
             <Text style={styles.inactiveTab}>Sign Up</Text>
-            </TouchableOpacity>
+          </TouchableOpacity>
         </View>
 
         <TextInput

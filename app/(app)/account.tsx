@@ -1,51 +1,45 @@
+import useFirebase from '@/hooks/useFirebase';
+import useUserData from '@/hooks/useUserData';
+import { Feather, Ionicons } from '@expo/vector-icons';
+import { Redirect, router } from 'expo-router';
+import { signOut } from 'firebase/auth';
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  useWindowDimensions,
-} from 'react-native';
-import { Ionicons, Feather } from '@expo/vector-icons';
-
-// Dummy data
-const user = {
-  name: 'John Doe',
-  role: 'Student',
-  avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-  created: 24,
-  explored: 12,
-};
-
-const recentSearches = [
-  { title: 'Dynamic Programming', time: '2 hours ago' },
-  { title: 'Binary Search Trees', time: '1 day ago' },
-  { title: 'Graph Algorithms', time: '2 days ago' },
-];
-
-const generatedSheets = [
+import
   {
-    title: 'Dynamic Programming',
-    desc: 'A comprehensive guide to DP patterns and problem-solving techniques.',
-    time: '2 hours ago',
-  },
-  {
-    title: 'Binary Search Trees',
-    desc: 'Implementation, traversal, and common BST operations examples.',
-    time: '1 day ago',
-  },
-  {
-    title: 'Graph Algorithms',
-    desc: 'DFS, BFS, and shortest path algorithms with examples.',
-    time: '2 days ago',
-  },
-];
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    useWindowDimensions,
+    View,
+  } from 'react-native';
 
-export default function DashboardScreen() {
+export default function DashboardScreen()
+{
+  const { auth, updateFirebaseContext } = useFirebase();
+  const { userData } = useUserData();
+  const { user, recentSearches, generatedSheets } = userData;
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 900;
+
+  async function logout()
+  {
+    try
+    {
+      let response = await signOut(auth);
+      console.log('signed out', response);
+      updateFirebaseContext();
+      router.replace('/login');
+    }
+    catch (error)
+    {
+      console.log(error);
+    }
+  }
+
+  if (!auth.currentUser)
+    return <Redirect href="/login" />;
 
   return (
     <View style={styles.root}>
@@ -56,8 +50,12 @@ export default function DashboardScreen() {
           <Text style={styles.logoText}>AlgoCheatSheet</Text>
         </View>
         <View style={styles.headerRight}>
-          <Image source={{ uri: user.avatar }} style={styles.avatar} />
-          <Text style={styles.headerUserName}>{user.name}</Text>
+          <TouchableOpacity
+            style={styles.ghostButton}
+            onPress={logout}
+          >
+            <Text style={styles.ghostButtonText}>Logout</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -193,6 +191,14 @@ const styles = StyleSheet.create({
   headerRight: { flexDirection: 'row', alignItems: 'center' },
   avatar: { width: 36, height: 36, borderRadius: 18, marginRight: 8 },
   headerUserName: { fontWeight: '500', color: '#222' },
+  ghostButton: {
+    marginRight: 8,
+    padding: 8,
+  },
+  ghostButtonText: {
+    color: "#2563eb",
+    fontWeight: "bold",
+  },
   scrollContent: { padding: 32, paddingBottom: 80 },
   dashboard: { width: '100%', marginBottom: 32, flex: 1 },
   profileCard: {
