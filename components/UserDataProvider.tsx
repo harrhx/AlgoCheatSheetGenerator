@@ -16,7 +16,6 @@ export default function UserDataProvider(props: PropsWithChildren)
     setUserData(docData)
     // Here you can fetch user data from your database if needed
     console.log('User is logged in:', auth.currentUser);
-    // For now, we are using dummy data
   }
 
   useEffect(() =>
