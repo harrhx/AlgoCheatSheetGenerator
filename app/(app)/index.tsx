@@ -196,14 +196,11 @@ export default function HomePage()
         </ScrollView>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>AlgoCheatSheet</Text>
-          <View style={styles.linksRow}>
-            <Text style={styles.footerLink}>About</Text>
-            <Text style={styles.footerLink}>Privacy</Text>
-            <Text style={styles.footerLink}>Terms</Text>
-            <Text style={styles.footerLink}>Contact</Text>
-          </View>
-        </View>
+  <Text style={styles.footerCopyright}>
+    © 2025 AlgoCheatSheet. All rights reserved
+  </Text>
+</View>
+
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -353,10 +350,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   footer: {
-    backgroundColor: "#111827",
-    padding: 16,
-    alignItems: "center",
-  },
+  backgroundColor: "#111827",
+  padding: 16,
+  alignItems: "center",
+  justifyContent: "center",
+  // Fixed to bottom:
+  position: "absolute",
+  left: 0,
+  right: 0,
+  bottom: 0,
+  // Optional: add elevation/shadow for separation
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: -2 },
+  shadowOpacity: 0.08,
+  shadowRadius: 4,
+  elevation: 6,
+},
+footerCopyright: {
+    color: "#a1a1aa",
+    fontSize: 12,
+    fontWeight: "bold",
+    letterSpacing: 0.2,
+},
+
   footerText: {
     color: "#fff",
     fontWeight: "bold",
