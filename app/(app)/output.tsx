@@ -1,5 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import
   {
     ActivityIndicator,
@@ -49,7 +50,7 @@ export default function CheatSheetScreen() {
     const fetchCheatSheet = async () => {
       try {
         const response = await fetch(
-          "https://aicheatsheetgeneratorbackend.onrender.com/api/generate-cheatsheet",
+          "http://localhost:3001/api/generate-cheatsheet",
           {
             method: "POST",
             headers: {
@@ -126,7 +127,7 @@ export default function CheatSheetScreen() {
     <>
       <View style={styles.headerContainer}>
         <View style={styles.leftSection}>
-          <Text style={styles.iconSymbol}>{'</>'}</Text>
+          <Ionicons name="code-slash-outline" size={24} color="#2563eb" style={{ marginRight: 8 }} />
           <Text style={styles.title}>AlgoCheatSheet</Text>
         </View>
         <View style={styles.rightSection}>
@@ -186,7 +187,7 @@ export default function CheatSheetScreen() {
             width: isLargeScreen ? undefined : '100%',
           }]}>
             <View style={styles.sidebarSection}>
-              <Text style={styles.sectionTitle}>Related Topics</Text>
+              <Text style={styles.sectionTitle}>Recent Searches</Text>
               <View style={styles.topicsGrid}>
                 {relatedTopics.map((topic, idx) => (
                   <TouchableOpacity key={idx} style={styles.topicCard}>
@@ -237,11 +238,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginRight: 8,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#222',
-  },
+  title: {fontSize: 20, fontWeight: "bold", color: "#2563eb"},
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',
