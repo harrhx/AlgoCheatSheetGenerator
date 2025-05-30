@@ -27,8 +27,6 @@ const hardcodedRelatedTopics = [
   { title: 'Binary Trees', icon: '🌳' },
   { title: 'Dynamic Programming', icon: '🧩' },
   { title: 'Sorting Algorithms', icon: '🔢' },
-  { title: 'Searching Algorithms', icon: '🔍' },
-  { title: 'Greedy Algorithms', icon: '💡' },
 ];
 
 export default function CheatSheetScreen() {
@@ -193,9 +191,6 @@ export default function CheatSheetScreen() {
         <View style={styles.rightSection}>
           <TouchableOpacity style={styles.iconButton} onPress={() => router.navigate('/account')} >
             <Icon name="user" size={20} color="#000" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Icon name="bookmark" size={20} color="#000" />
           </TouchableOpacity>
         </View>
       </View>
