@@ -14,17 +14,21 @@ import
     View,
   } from "react-native";
 
-export default function DashboardScreen() {
+export default function DashboardScreen()
+{
   const { auth } = useFirebase();
   const { userData } = useUserData();
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 900;
 
-  async function logout() {
-    try {
+  async function logout()
+  {
+    try
+    {
       const response = await signOut(auth);
       console.log("signed out", response);
-    } catch (error) {
+    } catch (error)
+    {
       console.log(error);
     }
   }
@@ -156,7 +160,7 @@ export default function DashboardScreen() {
                     flex: isLargeScreen ? 1 : undefined,
                     marginRight:
                       isLargeScreen &&
-                      idx !== userData.generatedSheets.length - 1
+                        idx !== userData.generatedSheets.length - 1
                         ? 0
                         : 0,
                   },
@@ -165,7 +169,10 @@ export default function DashboardScreen() {
                 <Text style={styles.sheetTitle}>{sheet.topic}</Text>
                 <Text style={styles.sheetDesc}>{sheet.difficulty}</Text>
                 <View style={styles.sheetFooter}>
-                  <Text style={styles.sheetTime}>{sheet.generatedAt}</Text>
+                  <Text style={styles.sheetTime}>
+                    {
+                      typeof sheet.generatedAt == 'number' ? new Date(sheet.generatedAt).toDateString() : sheet.generatedAt
+                    }</Text>
                   <TouchableOpacity
                     onPress={() =>
                       router.navigate({

@@ -1,7 +1,7 @@
 import { UserDataContextType } from '@/components/UserDataProvider';
 import useFirebase from '@/hooks/useFirebase';
 import { router, useLocalSearchParams } from 'expo-router';
-import { createUserWithEmailAndPassword, getRedirectResult, GoogleAuthProvider, signInWithEmailAndPassword, signInWithRedirect } from 'firebase/auth';
+import { createUserWithEmailAndPassword, GithubAuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import
@@ -56,6 +56,63 @@ export default function SignUpScreen()
     }
   }
 
+  async function signInWithGooglePopup()
+  {
+    const provider = new GoogleAuthProvider();
+    try
+    {
+      const result = await signInWithPopup(auth, provider);
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential?.accessToken;
+      // The signed-in user info.
+      const user = result.user;
+      console.log("Google Sign-in successful!", user);
+      // You can now access user.uid, user.displayName, user.email, etc.
+      // Redirect or update UI as needed
+    } catch (error: any)
+    {
+      // Handle Errors here.
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      // The email of the user's account used.
+      const email = error.customData ? error.customData.email : null;
+      // The AuthCredential type that was used.
+      const credential = GoogleAuthProvider.credentialFromError(error);
+      console.error("Google Sign-in error:", errorCode, errorMessage, email, credential);
+      // ... display error to the user
+    }
+  }
+
+  async function signInWithGithubPopup()
+  {
+    const provider = new GithubAuthProvider();
+    try
+    {
+      const result = await signInWithPopup(auth, provider);
+      // This gives you a GitHub Access Token. You can use it to access the GitHub API.
+      const credential = GithubAuthProvider.credentialFromResult(result);
+      const token = credential?.accessToken;
+      // The signed-in user info.
+      const user = result.user;
+      console.log("GitHub Sign-in successful!", user);
+      // You can now access user.uid, user.displayName, user.email, etc.
+      // Redirect or update UI as needed
+    } catch (error: any)
+    {
+      // Handle Errors here.
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      // The email of the user's account used.
+      const email = error.customData ? error.customData.email : null;
+      // The AuthCredential type that was used.
+      const credential = GithubAuthProvider.credentialFromError(error);
+      console.error("GitHub Sign-in error:", errorCode, errorMessage, email, credential);
+      // ... display error to the user
+    }
+  }
+
+  /* UNUSED
   // Call this function when your app loads, to handle the redirect result
   async function handleGoogleRedirectResult()
   {
@@ -102,6 +159,14 @@ export default function SignUpScreen()
 
   useEffect(() =>
   {
+    // Handle the Google redirect result when the component mounts
+    handleGoogleRedirectResult();
+  }
+    , []);
+  */
+
+  useEffect(() =>
+  {
     if (auth.currentUser)
     {
       console.log('User already logged in, redirecting...');
@@ -112,13 +177,6 @@ export default function SignUpScreen()
     }
   }
     , [auth.currentUser]);
-
-  useEffect(() =>
-  {
-    // Handle the Google redirect result when the component mounts
-    handleGoogleRedirectResult();
-  }
-    , []);
 
   return (
     <ScrollView
@@ -199,10 +257,10 @@ export default function SignUpScreen()
         <Text style={styles.orText}>Or continue with</Text>
 
         <View style={styles.socialButtons}>
-          <Button icon="google" mode="outlined" style={styles.socialBtn} onPress={signInWithGoogleRedirect}>
+          <Button icon="google" mode="outlined" style={styles.socialBtn} onPress={signInWithGooglePopup}>
             Google
           </Button>
-          <Button icon="github" mode="outlined" style={styles.socialBtn}>
+          <Button icon="github" mode="outlined" style={styles.socialBtn} onPress={signInWithGithubPopup}>
             GitHub
           </Button>
         </View>

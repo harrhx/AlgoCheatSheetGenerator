@@ -1,54 +1,56 @@
-import { UserDataType } from "@/components/UserDataProvider";
-import useFirebase from "@/hooks/useFirebase";
-import useUserData from "@/hooks/useUserData";
-import { Ionicons } from "@expo/vector-icons";
+import { UserDataType } from '@/components/UserDataProvider';
+import useFirebase from '@/hooks/useFirebase';
+import useUserData from '@/hooks/useUserData';
+import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from "expo-router";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-  FlatList,
-} from "react-native";
-import Icon from "react-native-vector-icons/Feather";
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import
+  {
+    ActivityIndicator,
+    FlatList,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    useWindowDimensions,
+    View,
+  } from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
 
 // Hardcoded topics with icons
 const hardcodedRelatedTopics = [
-  { title: "Recursion", icon: "🔄" },
-  { title: "Memoization", icon: "💾" },
-  { title: "Graph Algorithms", icon: "🔗" },
-  { title: "Binary Trees", icon: "🌳" },
-  { title: "Dynamic Programming", icon: "🧩" },
-  { title: "Sorting Algorithms", icon: "🔢" },
+  { title: 'Recursion', icon: '🔄' },
+  { title: 'Memoization', icon: '💾' },
+  { title: 'Graph Algorithms', icon: '🔗' },
+  { title: 'Binary Trees', icon: '🌳' },
+  { title: 'Dynamic Programming', icon: '🧩' },
+  { title: 'Sorting Algorithms', icon: '🔢' },
 
-  { title: "Breadth-First Search", icon: "🌊" },
-  { title: "Depth-First Search", icon: "🕳️" },
-  { title: "Dijkstra's Algorithm", icon: "🛣️" },
-  { title: "A* Search", icon: "⭐" },
-  { title: "Bellman-Ford Algorithm", icon: "🔔" },
-  { title: "Floyd-Warshall Algorithm", icon: "🌐" },
-  { title: "Kruskal's Algorithm", icon: "🪢" },
-  { title: "Prim's Algorithm", icon: "🌲" },
-  { title: "Heap Data Structure", icon: "🗑️" },
-  { title: "Trie Data Structure", icon: "🌲" },
-  { title: "Hash Table", icon: "🔑" },
-  { title: "Stack", icon: "📚" },
-  { title: "Queue", icon: "📬" },
-  { title: "Linked List", icon: "🔗" },
-  { title: "Binary Search", icon: "🔍" },
-  { title: "Backtracking", icon: "↩️" },
-  { title: "Greedy Algorithms", icon: "💰" },
-  { title: "Divide and Conquer", icon: "✂️" },
-  { title: "Minimum Spanning Tree", icon: "🌳" },
-  { title: "Topological Sort", icon: "🔝" },
+  { title: 'Breadth-First Search', icon: '🌊' },
+  { title: 'Depth-First Search', icon: '🕳️' },
+  { title: 'Dijkstra\'s Algorithm', icon: '🛣️' },
+  { title: 'A* Search', icon: '⭐' },
+  { title: 'Bellman-Ford Algorithm', icon: '🔔' },
+  { title: 'Floyd-Warshall Algorithm', icon: '🌐' },
+  { title: 'Kruskal\'s Algorithm', icon: '🪢' },
+  { title: 'Prim\'s Algorithm', icon: '🌲' },
+  { title: 'Heap Data Structure', icon: '🗑️' },
+  { title: 'Trie Data Structure', icon: '🌲' },
+  { title: 'Hash Table', icon: '🔑' },
+  { title: 'Stack', icon: '📚' },
+  { title: 'Queue', icon: '📬' },
+  { title: 'Linked List', icon: '🔗' },
+  { title: 'Binary Search', icon: '🔍' },
+  { title: 'Backtracking', icon: '↩️' },
+  { title: 'Greedy Algorithms', icon: '💰' },
+  { title: 'Divide and Conquer', icon: '✂️' },
+  { title: 'Minimum Spanning Tree', icon: '🌳' },
+  { title: 'Topological Sort', icon: '🔝' },
 ];
+
 
 export default function CheatSheetScreen() {
   const params = useLocalSearchParams();
@@ -59,14 +61,11 @@ export default function CheatSheetScreen() {
   const isLargeScreen = width > 700;
 
   const [loading, setLoading] = useState(true);
-  const [loadingText, setLoadingText] = useState(
-    "Generating your cheat sheet..."
-  );
+  const [loadingText, setLoadingText] = useState("Generating your cheat sheet...");
   const [progress, setProgress] = useState(0);
-  const [cheatSheetHtmlContent, setCheatSheetHtmlContent] =
-    useState("<p>Loading...</p>");
+  const [cheatSheetHtmlContent, setCheatSheetHtmlContent] = useState('<p>Loading...</p>');
   const [relatedTopics, setRelatedTopics] = useState<string[]>([]);
-  const [searchInput, setSearchInput] = useState("");
+  const [searchInput, setSearchInput] = useState('');
 
   useEffect(() => {
     setLoading(true);
@@ -101,10 +100,8 @@ export default function CheatSheetScreen() {
             body: JSON.stringify({ topic: topicName }),
           }
         );
-        const data: UserDataType["generatedSheets"][0] = await response.json();
-        const htmlContent =
-          data.html ||
-          `<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`;
+        const data: UserDataType['generatedSheets'][0] = await response.json();
+        const htmlContent = data.html || `<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`;
         setCheatSheetHtmlContent(htmlContent);
 
         if (data.html) {
@@ -116,14 +113,11 @@ export default function CheatSheetScreen() {
             ...docData,
             generatedSheets: [
               ...docData!.generatedSheets,
-              {
-                ...data,
-                generatedAt: new Date(data.generatedAt).toDateString(),
-              },
+              { ...data, generatedAt: new Date(data.generatedAt).getTime() }
             ],
             recentSearches: [
               ...docData!.recentSearches,
-              { title: topicName, time: new Date().toDateString() },
+              { title: topicName, time: new Date().getTime() }
             ],
           };
 
@@ -133,9 +127,7 @@ export default function CheatSheetScreen() {
         }
         setRelatedTopics(data.relatedTopics || []);
       } catch (error) {
-        setCheatSheetHtmlContent(
-          `<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`
-        );
+        setCheatSheetHtmlContent(`<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`);
         setRelatedTopics([]);
       } finally {
         clearInterval(messageInterval);
@@ -146,11 +138,7 @@ export default function CheatSheetScreen() {
     };
     if (params.generatedAt) {
       setLoading(false);
-      setCheatSheetHtmlContent(
-        userData?.generatedSheets.find(
-          (sheet) => sheet.generatedAt === params.generatedAt
-        )?.html || `<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`
-      );
+      setCheatSheetHtmlContent(userData?.generatedSheets.find(sheet => sheet.generatedAt == params.generatedAt)?.html || `<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`);
     } else {
       fetchCheatSheet();
     }
@@ -162,51 +150,30 @@ export default function CheatSheetScreen() {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#2563eb" />
-          <Text style={{ marginTop: 16, color: "#2563eb" }}>{loadingText}</Text>
+          <Text style={{ marginTop: 16, color: '#2563eb' }}>{loadingText}</Text>
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
               <View style={[styles.progressFill, { width: `${progress}%` }]} />
             </View>
             <Text style={styles.progressText}>
-              {progress === 100
-                ? "Displaying..."
-                : "This may take 10-30 seconds"}
+              {progress === 100 ? "Displaying..." : "This may take 10-30 seconds"}
             </Text>
           </View>
         </View>
       );
     }
-    // Inside your HtmlCheatSheetViewer component (web platform)
-    if (Platform.OS === "web") {
+    if (Platform.OS === 'web') {
       return (
         <iframe
           srcDoc={cheatSheetHtmlContent}
-          style={{
-            width: "100%",
-            height: "100%",
-            border: "none",
-            borderRadius: 12,
-            minHeight: 400,
-          }}
+          style={{ width: '100%', height: '100%', border: 'none', borderRadius: 12, minHeight: 400 }}
           title="Cheat Sheet"
-          sandbox="allow-scripts allow-popups" // Allow scripts and new tabs
-          onLoad={(e) => {
-            // Inject script to force all links to open in new tabs
-            const iframe = e.target as HTMLIFrameElement;
-            const script = `
-          document.querySelectorAll('a').forEach(a => {
-            a.target = '_blank';
-            a.rel = 'noopener noreferrer';
-          });
-        `;
-            iframe.contentWindow?.postMessage(script, "*"); // Use postMessage for cross-origin if needed
-          }}
         />
       );
     } else {
       return (
         <ScrollView contentContainerStyle={{ padding: 16 }}>
-          <Text selectable style={{ fontSize: 12, color: "#444" }}>
+          <Text selectable style={{ fontSize: 12, color: '#444' }}>
             {cheatSheetHtmlContent}
           </Text>
         </ScrollView>
@@ -219,72 +186,48 @@ export default function CheatSheetScreen() {
     ...hardcodedRelatedTopics,
     ...relatedTopics
       .filter(
-        (t) =>
+        t =>
           !hardcodedRelatedTopics.some(
-            (ht) => ht.title.toLowerCase() === t.toLowerCase()
+            ht => ht.title.toLowerCase() === t.toLowerCase()
           )
       )
-      .map((t) => ({ title: t, icon: "🔗" })), // Use default icon for new topics
+      .map(t => ({ title: t, icon: '🔗' })), // Use default icon for new topics
   ];
 
   // Handler for user to search a new topic
   const handleSearch = () => {
     if (!searchInput.trim()) return;
-    router.replace({
-      pathname: "/output",
-      params: { topic: searchInput.trim() },
-    });
-    setSearchInput("");
+    router.replace({ pathname: "/output", params: { topic: searchInput.trim() } });
+    setSearchInput('');
   };
 
   return (
     <>
       <View style={styles.headerContainer}>
         <View style={styles.leftSection}>
-          <Ionicons
-            name="code-slash-outline"
-            size={24}
-            color="#2563eb"
-            style={{ marginRight: 8 }}
-          />
+          <Ionicons name="code-slash-outline" size={24} color="#2563eb" style={{ marginRight: 8 }} />
           <Text style={styles.title}>AlgoCheatSheet</Text>
         </View>
         <View style={styles.rightSection}>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => router.navigate("/account")}
-          >
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.navigate('/account')} >
             <Icon name="user" size={20} color="#000" />
           </TouchableOpacity>
         </View>
       </View>
 
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={isLargeScreen ? { flex: 1 } : {}}
-      >
-        <View
-          style={[
-            styles.contentContainer,
-            {
-              flexDirection: isLargeScreen ? "row" : "column",
-              flex: isLargeScreen ? 1 : undefined,
-              minHeight: isLargeScreen ? 0 : undefined,
-            },
-          ]}
-        >
-          <View
-            style={[
-              styles.leftPanel,
-              {
-                marginRight: isLargeScreen ? 16 : 0,
-                marginBottom: isLargeScreen ? 0 : 16,
-                flex: isLargeScreen ? 2 : undefined,
-                width: isLargeScreen ? undefined : "100%",
-                height: isLargeScreen ? undefined : 500,
-              },
-            ]}
-          >
+      <ScrollView style={styles.container} contentContainerStyle={isLargeScreen ? { flex: 1 } : {}}>
+        <View style={[styles.contentContainer, {
+          flexDirection: isLargeScreen ? 'row' : 'column',
+          flex: isLargeScreen ? 1 : undefined,
+          minHeight: isLargeScreen ? 0 : undefined,
+        }]}>
+          <View style={[styles.leftPanel, {
+            marginRight: isLargeScreen ? 16 : 0,
+            marginBottom: isLargeScreen ? 0 : 16,
+            flex: isLargeScreen ? 2 : undefined,
+            width: isLargeScreen ? undefined : '100%',
+            height: isLargeScreen ? undefined : 500,
+          }]}>
             <View style={[styles.cheatSheetContainer, { flex: 1 }]}>
               <HtmlCheatSheetViewer />
             </View>
@@ -293,39 +236,30 @@ export default function CheatSheetScreen() {
                 <TouchableOpacity
                   style={styles.primaryButton}
                   onPress={() => {
-                    if (Platform.OS === "web") {
-                      const blob = new Blob([cheatSheetHtmlContent], {
-                        type: "text/html",
-                      });
+                    if (Platform.OS === 'web') {
+                      const blob = new Blob([cheatSheetHtmlContent], { type: 'text/html' });
                       const url = URL.createObjectURL(blob);
-                      const a = document.createElement("a");
+                      const a = document.createElement('a');
                       a.href = url;
-                      a.download = "algo_cheat_sheet.html";
+                      a.download = 'algo_cheat_sheet.html';
                       a.click();
                       URL.revokeObjectURL(url);
                     } else {
-                      alert("Download is only available on web for now.");
+                      alert('Download is only available on web for now.');
                     }
                   }}
                 >
-                  <Text style={styles.primaryButtonText}>
-                    ⬇️ Download Cheat Sheet
-                  </Text>
+                  <Text style={styles.primaryButtonText}>⬇️ Download Cheat Sheet</Text>
                 </TouchableOpacity>
               </View>
             )}
           </View>
 
-          <View
-            style={[
-              styles.rightPanel,
-              {
-                flex: 1, // Make sidebar take all available space
-                width: isLargeScreen ? undefined : "100%",
-                minHeight: 0,
-              },
-            ]}
-          >
+          <View style={[styles.rightPanel, {
+            flex: 1, // Make sidebar take all available space
+            width: isLargeScreen ? undefined : '100%',
+            minHeight: 0,
+          }]}>
             {/* Search Bar at Top */}
             <View style={styles.searchBarContainer}>
               <TextInput
@@ -359,21 +293,10 @@ export default function CheatSheetScreen() {
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.topicCard}
-                    onPress={() =>
-                      router.replace({
-                        pathname: "/output",
-                        params: { topic: item.title },
-                      })
-                    }
+                    onPress={() => router.replace({ pathname: "/output", params: { topic: item.title } })}
                   >
                     <Text style={styles.topicIcon}>{item.icon}</Text>
-                    <Text
-                      style={styles.topicTitle}
-                      numberOfLines={2}
-                      ellipsizeMode="tail"
-                    >
-                      {item.title}
-                    </Text>
+                    <Text style={styles.topicTitle} numberOfLines={2} ellipsizeMode="tail">{item.title}</Text>
                   </TouchableOpacity>
                 )}
                 showsVerticalScrollIndicator={true}
@@ -388,44 +311,44 @@ export default function CheatSheetScreen() {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: "#e5e5e5",
+    borderBottomColor: '#e5e5e5',
   },
   leftSection: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   title: { fontSize: 20, fontWeight: "bold", color: "#2563eb" },
   rightSection: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   iconButton: {
     marginLeft: 12,
     padding: 8,
     borderRadius: 20,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: '#f0f0f0',
   },
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: '#f5f5f5'
   },
   contentContainer: {
     padding: 16,
   },
   leftPanel: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 12,
-    overflow: "hidden",
-    display: "flex",
-    flexDirection: "column",
-    shadowColor: "#000",
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -437,26 +360,26 @@ const styles = StyleSheet.create({
   },
   actionBar: {
     padding: 12,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: "#e5e5e5",
-    alignItems: "flex-end",
+    borderTopColor: '#e5e5e5',
+    alignItems: 'flex-end',
   },
   primaryButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 6,
-    backgroundColor: "#007bff",
+    backgroundColor: '#007bff',
   },
   primaryButtonText: {
-    color: "white",
-    fontWeight: "600",
+    color: 'white',
+    fontWeight: '600',
   },
   rightPanel: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -471,9 +394,9 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 16,
-    color: "#333",
+    color: '#333',
   },
   searchBarContainer: {
     backgroundColor: "#fff",
@@ -517,19 +440,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   topicCard: {
-    backgroundColor: "#f8f9fa",
+    backgroundColor: '#f8f9fa',
     paddingVertical: 24,
     paddingHorizontal: 16,
     borderRadius: 12,
-    alignItems: "center",
-    width: "48%",
-    margin: "1%",
+    alignItems: 'center',
+    width: '48%',
+    margin: '1%',
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#e9ecef",
+    borderColor: '#e9ecef',
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.10,
     shadowRadius: 6,
     elevation: 3,
   },
@@ -539,17 +462,17 @@ const styles = StyleSheet.create({
   },
   topicTitle: {
     fontSize: 15,
-    fontWeight: "600",
-    color: "#495057",
-    textAlign: "center",
+    fontWeight: '600',
+    color: '#495057',
+    textAlign: 'center',
     flexShrink: 1,
   },
   loadingContainer: {
     flex: 1,
     height: 400,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f9f9f9",
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f9f9f9',
     borderRadius: 12,
   },
   progressContainer: {

@@ -56,7 +56,7 @@ export type UserDataType =
     avatar: string;
     recentSearches: {
       title: string;
-      time: string;
+      time: string | number;
     }[];
     generatedSheets: {
       html: string;
@@ -64,7 +64,7 @@ export type UserDataType =
       relatedTopics: string[];
       difficulty: string;
       programmingLanguage: string;
-      generatedAt: string;
+      generatedAt: string | number;
     }[];
   };
 
