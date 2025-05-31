@@ -1,6 +1,8 @@
+import { UserDataType } from '@/components/UserDataProvider';
 import useFirebase from '@/hooks/useFirebase';
 import { router, useLocalSearchParams } from 'expo-router';
 import { GithubAuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import
   {
@@ -16,7 +18,7 @@ import { Button, Checkbox, TextInput } from 'react-native-paper';
 export default function LoginScreen()
 {
   const params = useLocalSearchParams();
-  const { auth } = useFirebase();
+  const { auth, db } = useFirebase();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,6 +46,25 @@ export default function LoginScreen()
     try
     {
       const result = await signInWithPopup(auth, provider);
+
+      const docRef = doc(db, "users", result.user.email ?? 'null');
+      const docSnapshot = await getDoc(docRef);
+      const docData = docSnapshot.data() as UserDataType;
+      const newUserData: UserDataType = docData ??
+      {
+        email,
+        name: null,
+        createdAt: new Date().getTime(),
+        role: 'Student', // Default role, can be changed later
+        avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+        recentSearches: [],
+        generatedSheets: [],
+      };
+      if (docData)
+        await updateDoc(docRef, newUserData);
+      else
+        await setDoc(docRef, newUserData);
+
       // This gives you a Google Access Token. You can use it to access the Google API.
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential?.accessToken;
@@ -72,6 +93,25 @@ export default function LoginScreen()
     try
     {
       const result = await signInWithPopup(auth, provider);
+
+      const docRef = doc(db, "users", result.user.email ?? 'null');
+      const docSnapshot = await getDoc(docRef);
+      const docData = docSnapshot.data() as UserDataType;
+      const newUserData: UserDataType = docData ??
+      {
+        email,
+        name: null,
+        createdAt: new Date().getTime(),
+        role: 'Student', // Default role, can be changed later
+        avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+        recentSearches: [],
+        generatedSheets: [],
+      };
+      if (docData)
+        await updateDoc(docRef, newUserData);
+      else
+        await setDoc(docRef, newUserData);
+
       // This gives you a GitHub Access Token. You can use it to access the GitHub API.
       const credential = GithubAuthProvider.credentialFromResult(result);
       const token = credential?.accessToken;

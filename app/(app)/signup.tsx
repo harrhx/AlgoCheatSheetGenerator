@@ -1,8 +1,8 @@
-import { UserDataContextType } from '@/components/UserDataProvider';
+import { UserDataContextType, UserDataType } from '@/components/UserDataProvider';
 import useFirebase from '@/hooks/useFirebase';
 import { router, useLocalSearchParams } from 'expo-router';
 import { createUserWithEmailAndPassword, GithubAuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import
   {
@@ -39,7 +39,7 @@ export default function SignUpScreen()
       {
         email,
         name: null,
-        createdAt: new Date().toDateString(),
+        createdAt: new Date().getTime(),
         role: 'Student', // Default role, can be changed later
         avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
         recentSearches: [],
@@ -62,6 +62,25 @@ export default function SignUpScreen()
     try
     {
       const result = await signInWithPopup(auth, provider);
+
+      const docRef = doc(db, "users", result.user.email ?? 'null');
+      const docSnapshot = await getDoc(docRef);
+      const docData = docSnapshot.data() as UserDataType;
+      const newUserData: UserDataType = docData ??
+      {
+        email,
+        name: null,
+        createdAt: new Date().getTime(),
+        role: 'Student', // Default role, can be changed later
+        avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+        recentSearches: [],
+        generatedSheets: [],
+      };
+      if (docData)
+        await updateDoc(docRef, newUserData);
+      else
+        await setDoc(docRef, newUserData);
+
       // This gives you a Google Access Token. You can use it to access the Google API.
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential?.accessToken;
@@ -90,6 +109,25 @@ export default function SignUpScreen()
     try
     {
       const result = await signInWithPopup(auth, provider);
+
+      const docRef = doc(db, "users", result.user.email ?? 'null');
+      const docSnapshot = await getDoc(docRef);
+      const docData = docSnapshot.data() as UserDataType;
+      const newUserData: UserDataType = docData ??
+      {
+        email,
+        name: null,
+        createdAt: new Date().getTime(),
+        role: 'Student', // Default role, can be changed later
+        avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+        recentSearches: [],
+        generatedSheets: [],
+      };
+      if (docData)
+        await updateDoc(docRef, newUserData);
+      else
+        await setDoc(docRef, newUserData);
+
       // This gives you a GitHub Access Token. You can use it to access the GitHub API.
       const credential = GithubAuthProvider.credentialFromResult(result);
       const token = credential?.accessToken;

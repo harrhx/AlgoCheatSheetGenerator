@@ -51,7 +51,7 @@ export type UserDataType =
   {
     email: string;
     name: null | string;
-    createdAt: string;
+    createdAt: number;
     role: string; // Default role, can be changed later
     avatar: string;
     recentSearches: {

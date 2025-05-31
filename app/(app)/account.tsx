@@ -88,7 +88,7 @@ export default function DashboardScreen()
             <Text style={styles.profileRole}>{userData?.role}</Text>
             <View style={styles.profileStats}>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{userData?.createdAt}</Text>
+                <Text style={styles.statNumber}>{new Date(userData?.createdAt ?? new Date().getTime()).toDateString()}</Text>
                 <Text style={styles.statLabel}>Account Created</Text>
               </View>
               <View style={[styles.statItem, { paddingHorizontal: 16 }]}>
