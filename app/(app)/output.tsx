@@ -5,19 +5,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from "expo-router";
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import
-  {
-    ActivityIndicator,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    useWindowDimensions,
-    View,
-  } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+  FlatList,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
 
 // Hardcoded topics with icons
 const hardcodedRelatedTopics = [
@@ -27,10 +27,31 @@ const hardcodedRelatedTopics = [
   { title: 'Binary Trees', icon: '🌳' },
   { title: 'Dynamic Programming', icon: '🧩' },
   { title: 'Sorting Algorithms', icon: '🔢' },
+
+  { title: 'Breadth-First Search', icon: '🌊' },
+  { title: 'Depth-First Search', icon: '🕳️' },
+  { title: 'Dijkstra\'s Algorithm', icon: '🛣️' },
+  { title: 'A* Search', icon: '⭐' },
+  { title: 'Bellman-Ford Algorithm', icon: '🔔' },
+  { title: 'Floyd-Warshall Algorithm', icon: '🌐' },
+  { title: 'Kruskal\'s Algorithm', icon: '🪢' },
+  { title: 'Prim\'s Algorithm', icon: '🌲' },
+  { title: 'Heap Data Structure', icon: '🗑️' },
+  { title: 'Trie Data Structure', icon: '🌲' },
+  { title: 'Hash Table', icon: '🔑' },
+  { title: 'Stack', icon: '📚' },
+  { title: 'Queue', icon: '📬' },
+  { title: 'Linked List', icon: '🔗' },
+  { title: 'Binary Search', icon: '🔍' },
+  { title: 'Backtracking', icon: '↩️' },
+  { title: 'Greedy Algorithms', icon: '💰' },
+  { title: 'Divide and Conquer', icon: '✂️' },
+  { title: 'Minimum Spanning Tree', icon: '🌳' },
+  { title: 'Topological Sort', icon: '🔝' },
 ];
 
-export default function CheatSheetScreen()
-{
+
+export default function CheatSheetScreen() {
   const params = useLocalSearchParams();
   const { auth, db, updateFirebaseContext } = useFirebase();
   const { userData } = useUserData();
@@ -45,8 +66,7 @@ export default function CheatSheetScreen()
   const [relatedTopics, setRelatedTopics] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState('');
 
-  useEffect(() =>
-  {
+  useEffect(() => {
     setLoading(true);
     let messageIndex = 0;
     let currentProgress = 0;
@@ -58,10 +78,8 @@ export default function CheatSheetScreen()
       "Finalizing your cheat sheet...",
     ];
 
-    const messageInterval = setInterval(() =>
-    {
-      if (messageIndex < loadingMessages.length - 1)
-      {
+    const messageInterval = setInterval(() => {
+      if (messageIndex < loadingMessages.length - 1) {
         messageIndex++;
         currentProgress += 20;
         setLoadingText(loadingMessages[messageIndex]);
@@ -69,10 +87,8 @@ export default function CheatSheetScreen()
       }
     }, 2000);
 
-    const fetchCheatSheet = async () =>
-    {
-      try
-      {
+    const fetchCheatSheet = async () => {
+      try {
         const response = await fetch(
           "https://aicheatsheetgeneratorbackend.onrender.com/api/generate-cheatsheet",
           {
@@ -87,20 +103,17 @@ export default function CheatSheetScreen()
         const htmlContent = data.html || `<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`;
         setCheatSheetHtmlContent(htmlContent);
 
-        if (data.html)
-        {
+        if (data.html) {
           const docRef = doc(db, "users", auth.currentUser!.email!);
           const docSnapshot = await getDoc(docRef);
           const docData = docSnapshot.data() as UserDataType;
 
-          const newDocData: UserDataType =
-          {
+          const newDocData: UserDataType = {
             ...docData,
-            generatedSheets:
-              [
-                ...docData!.generatedSheets,
-                { ...data, generatedAt: new Date(data.generatedAt).toDateString() }
-              ],
+            generatedSheets: [
+              ...docData!.generatedSheets,
+              { ...data, generatedAt: new Date(data.generatedAt).toDateString() }
+            ],
             recentSearches: [
               ...docData!.recentSearches,
               { title: topicName, time: new Date().toDateString() }
@@ -111,32 +124,28 @@ export default function CheatSheetScreen()
 
           updateFirebaseContext();
         }
-      } catch (error)
-      {
+        setRelatedTopics(data.relatedTopics || []);
+      } catch (error) {
         setCheatSheetHtmlContent(`<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`);
-      } finally
-      {
+        setRelatedTopics([]);
+      } finally {
         clearInterval(messageInterval);
         setProgress(100);
         setLoadingText("Complete!");
         setTimeout(() => setLoading(false), 500);
       }
     };
-    if (params.generatedAt)
-    {
-      console.log("Fetching existing cheat sheet for generatedAt:", params.generatedAt);
+    if (params.generatedAt) {
       setLoading(false);
       setCheatSheetHtmlContent(userData?.generatedSheets.find(sheet => sheet.generatedAt === params.generatedAt)?.html || `<h1>${topicName}</h1><p>Failed to fetch cheat sheet.</p>`);
-    }
-    else
+    } else {
       fetchCheatSheet();
+    }
     return () => clearInterval(messageInterval);
   }, [auth.currentUser, params.topic, params.generatedAt]);
 
-  function HtmlCheatSheetViewer()
-  {
-    if (loading)
-    {
+  function HtmlCheatSheetViewer() {
+    if (loading) {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#2563eb" />
@@ -152,8 +161,7 @@ export default function CheatSheetScreen()
         </View>
       );
     }
-    if (Platform.OS === 'web')
-    {
+    if (Platform.OS === 'web') {
       return (
         <iframe
           srcDoc={cheatSheetHtmlContent}
@@ -161,8 +169,7 @@ export default function CheatSheetScreen()
           title="Cheat Sheet"
         />
       );
-    } else
-    {
+    } else {
       return (
         <ScrollView contentContainerStyle={{ padding: 16 }}>
           <Text selectable style={{ fontSize: 12, color: '#444' }}>
@@ -187,8 +194,7 @@ export default function CheatSheetScreen()
   ];
 
   // Handler for user to search a new topic
-  const handleSearch = () =>
-  {
+  const handleSearch = () => {
     if (!searchInput.trim()) return;
     router.replace({ pathname: "/output", params: { topic: searchInput.trim() } });
     setSearchInput('');
@@ -202,12 +208,9 @@ export default function CheatSheetScreen()
           <Text style={styles.title}>AlgoCheatSheet</Text>
         </View>
         <View style={styles.rightSection}>
-          <Pressable onPress={() => router.navigate("/account")}>
-            <View style={styles.headerRight}>
-              <Ionicons name="person-circle-outline" size={35} color="#e0e0e0" style={{ transform: [{ scale: 1.2 }], marginRight: 15 }} />
-              <Text style={styles.headerUserName}>{userData?.email.split('@')[0]}</Text>
-            </View>
-          </Pressable>
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.navigate('/account')} >
+            <Icon name="user" size={20} color="#000" />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -231,10 +234,8 @@ export default function CheatSheetScreen()
               <View style={styles.actionBar}>
                 <TouchableOpacity
                   style={styles.primaryButton}
-                  onPress={() =>
-                  {
-                    if (Platform.OS === 'web')
-                    {
+                  onPress={() => {
+                    if (Platform.OS === 'web') {
                       const blob = new Blob([cheatSheetHtmlContent], { type: 'text/html' });
                       const url = URL.createObjectURL(blob);
                       const a = document.createElement('a');
@@ -242,8 +243,7 @@ export default function CheatSheetScreen()
                       a.download = 'algo_cheat_sheet.html';
                       a.click();
                       URL.revokeObjectURL(url);
-                    } else
-                    {
+                    } else {
                       alert('Download is only available on web for now.');
                     }
                   }}
@@ -255,8 +255,9 @@ export default function CheatSheetScreen()
           </View>
 
           <View style={[styles.rightPanel, {
-            flex: isLargeScreen ? 1 : undefined,
+            flex: 1, // Make sidebar take all available space
             width: isLargeScreen ? undefined : '100%',
+            minHeight: 0,
           }]}>
             {/* Search Bar at Top */}
             <View style={styles.searchBarContainer}>
@@ -280,24 +281,25 @@ export default function CheatSheetScreen()
             </View>
 
             {/* People Also Searched For */}
-            <View style={styles.sidebarSection}>
+            <View style={[styles.sidebarSection, { flex: 1, minHeight: 0 }]}>
               <Text style={styles.sectionTitle}>People Also Searched For</Text>
-              <View style={styles.topicsGrid}>
-                {mergedTopics.length === 0 ? (
-                  <Text style={{ color: '#888', fontStyle: 'italic' }}>No related topics found.</Text>
-                ) : (
-                  mergedTopics.map((topic, idx) => (
-                    <TouchableOpacity
-                      key={idx}
-                      style={styles.topicCard}
-                      onPress={() => router.replace({ pathname: "/output", params: { topic: topic.title } })}
-                    >
-                      <Text style={styles.topicIcon}>{topic.icon}</Text>
-                      <Text style={styles.topicTitle}>{topic.title}</Text>
-                    </TouchableOpacity>
-                  ))
+              <FlatList
+                data={mergedTopics}
+                keyExtractor={(item, idx) => item.title + idx}
+                numColumns={2}
+                style={{ flex: 1 }}
+                contentContainerStyle={{ paddingBottom: 8 }}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.topicCard}
+                    onPress={() => router.replace({ pathname: "/output", params: { topic: item.title } })}
+                  >
+                    <Text style={styles.topicIcon}>{item.icon}</Text>
+                    <Text style={styles.topicTitle} numberOfLines={2} ellipsizeMode="tail">{item.title}</Text>
+                  </TouchableOpacity>
                 )}
-              </View>
+                showsVerticalScrollIndicator={true}
+              />
             </View>
           </View>
         </View>
@@ -321,19 +323,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  iconSymbol: {
-    fontSize: 24,
-    color: '#007bff',
-    fontWeight: 'bold',
-    marginRight: 8,
-  },
   title: { fontSize: 20, fontWeight: "bold", color: "#2563eb" },
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  headerRight: { flexDirection: "row", alignItems: "center" },
-  headerUserName: { fontWeight: "500", color: "#222" },
   iconButton: {
     marginLeft: 12,
     padding: 8,
@@ -389,9 +383,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    flex: 1,
+    minHeight: 0,
   },
   sidebarSection: {
-    marginBottom: 24
+    marginBottom: 24,
+    flex: 1,
+    minHeight: 0,
   },
   sectionTitle: {
     fontSize: 18,
@@ -399,7 +397,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     color: '#333',
   },
-  // Search bar styles
   searchBarContainer: {
     backgroundColor: "#fff",
     borderRadius: 25,
@@ -408,12 +405,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     marginBottom: 24,
-    // Shadow for iOS
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
-    // Shadow for Android
     elevation: 8,
     minWidth: 0,
     width: "100%",
@@ -443,24 +438,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-  topicsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
   topicCard: {
     backgroundColor: '#f8f9fa',
     paddingVertical: 24,
     paddingHorizontal: 16,
     borderRadius: 12,
     alignItems: 'center',
-    width: '48%', // 2 per row on small screens
-    minWidth: 120,
+    width: '48%',
+    margin: '1%',
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#e9ecef',
-    // Larger shadow for more prominence
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.10,
@@ -476,6 +464,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#495057',
     textAlign: 'center',
+    flexShrink: 1,
   },
   loadingContainer: {
     flex: 1,
