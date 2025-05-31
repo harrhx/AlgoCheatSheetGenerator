@@ -197,7 +197,7 @@ export default function HomePage()
 
         <View style={styles.footer}>
   <Text style={styles.footerCopyright}>
-    © 2025 AlgoCheatSheet. All rights reserved
+    © 2025 AlgoCheatSheet. All rights reserved.
   </Text>
 </View>
 
