@@ -1,13 +1,15 @@
 import FirebaseProvider from '@/components/FirebaseProvider';
 import UserDataProvider from '@/components/UserDataProvider';
+import { ThemeProvider } from './(app)/ThemeContext'; // Adjust path to your ThemeProvider
 import { Slot } from "expo-router";
 
-export default function RootLayout()
-{
+export default function RootLayout() {
   return (
     <FirebaseProvider>
       <UserDataProvider>
-        <Slot />
+        <ThemeProvider> {/* Add ThemeProvider here */}
+          <Slot />
+        </ThemeProvider>
       </UserDataProvider>
     </FirebaseProvider>
   );
